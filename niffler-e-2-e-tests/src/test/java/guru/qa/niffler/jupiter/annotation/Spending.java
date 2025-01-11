@@ -8,9 +8,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Spending {
-  String category();
+    String category();
 
-  String description();
+    String description();
 
-  double amount();
+    double amount();
 }
