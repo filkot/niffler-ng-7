@@ -2,6 +2,7 @@ package guru.qa.niffler.data.dao.impl;
 
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.AuthAuthorityDao;
+import guru.qa.niffler.data.entity.auth.AuthUserEntity;
 import guru.qa.niffler.data.entity.auth.Authority;
 import guru.qa.niffler.data.entity.auth.AuthorityEntity;
 import org.jetbrains.annotations.NotNull;
@@ -9,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -20,25 +20,13 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
 
     private static final Config CFG = Config.getInstance();
 
-    @NotNull
-    private static AuthorityEntity getAuthorityEntity(ResultSet rs) throws SQLException {
-        AuthorityEntity authority = new AuthorityEntity();
-        authority.setId(rs.getObject("id", UUID.class));
-        authority.setUserId(rs.getObject("user_id", UUID.class));
-        authority.setAuthority(Authority.valueOf(rs.getString("authority")));
-
-        return authority;
-    }
-
     @Override
     public void create(AuthorityEntity... authorityEntities) {
         try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
                 "INSERT INTO authority (user_id, authority)" +
-                        " VALUES (?, ?)",
-                Statement.RETURN_GENERATED_KEYS
-        )) {
+                        " VALUES (?, ?)")) {
             for (AuthorityEntity authority : authorityEntities) {
-                ps.setObject(1, authority.getId());
+                ps.setObject(1, authority.getUser().getId());
                 ps.setString(2, authority.getAuthority().name());
                 ps.addBatch();
             }
@@ -67,6 +55,18 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
             throw new RuntimeException(e);
         }
         return authorityEntities;
+    }
+
+    @NotNull
+    private static AuthorityEntity getAuthorityEntity(ResultSet rs) throws SQLException {
+        AuthorityEntity authority = new AuthorityEntity();
+        authority.setId(rs.getObject("id", UUID.class));
+        AuthUserEntity userEntity = new AuthUserEntity();
+        userEntity.setId(rs.getObject("user_id", UUID.class));
+        authority.setUser(userEntity);
+        authority.setAuthority(Authority.valueOf(rs.getString("authority")));
+
+        return authority;
     }
 
 }

@@ -1,5 +1,6 @@
 package guru.qa.niffler.data.mapper;
 
+import guru.qa.niffler.data.entity.auth.AuthUserEntity;
 import guru.qa.niffler.data.entity.auth.Authority;
 import guru.qa.niffler.data.entity.auth.AuthorityEntity;
 import org.springframework.jdbc.core.RowMapper;
@@ -19,7 +20,9 @@ public class AuthorityEntityRowMapper implements RowMapper<AuthorityEntity> {
     public AuthorityEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
         AuthorityEntity result = new AuthorityEntity();
         result.setId(rs.getObject("id", UUID.class));
-        result.setUserId(rs.getObject("user_id", UUID.class));
+        AuthUserEntity userEntity = new AuthUserEntity();
+        userEntity.setId(rs.getObject("user_id", UUID.class));
+        result.setUser(userEntity);
         result.setAuthority(Authority.valueOf(rs.getString("result")));
 
         return result;

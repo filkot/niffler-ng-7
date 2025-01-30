@@ -21,7 +21,7 @@ public class CategoryDaoJdbc implements CategoryDao {
     private static final Config CFG = Config.getInstance();
 
     @NotNull
-    private static CategoryEntity getCategoryEntity(ResultSet rs) throws SQLException {
+    private CategoryEntity getCategoryEntity(ResultSet rs) throws SQLException {
         CategoryEntity categoryEntity = new CategoryEntity();
         categoryEntity.setId(rs.getObject("id", UUID.class));
         categoryEntity.setUsername(rs.getString("username"));
