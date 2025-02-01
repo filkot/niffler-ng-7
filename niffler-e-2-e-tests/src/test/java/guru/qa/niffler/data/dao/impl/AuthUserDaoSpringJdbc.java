@@ -48,6 +48,30 @@ public class AuthUserDaoSpringJdbc implements AuthUserDao {
     }
 
     @Override
+    public AuthUserEntity update(AuthUserEntity user) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
+        int affectedRows = jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(
+                    "UPDATE \"user\" " +
+                            "SET username = ?, password = ?, enabled = ?, account_non_expired = ?, " +
+                            "account_non_locked = ?, credentials_non_expired = ? " +
+                            "WHERE id = ?");
+            ps.setString(1, user.getUsername());
+            ps.setString(2, user.getPassword());
+            ps.setBoolean(3, user.getEnabled());
+            ps.setBoolean(4, user.getAccountNonExpired());
+            ps.setBoolean(5, user.getAccountNonLocked());
+            ps.setBoolean(6, user.getCredentialsNonExpired());
+            ps.setObject(7, user.getId());
+            return ps;
+        });
+        if (affectedRows == 0) {
+            throw new RuntimeException("Updating user failed, no rows affected.");
+        }
+        return user;
+    }
+
+    @Override
     public Optional<AuthUserEntity> findById(UUID id) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
         return Optional.ofNullable(
@@ -65,6 +89,21 @@ public class AuthUserDaoSpringJdbc implements AuthUserDao {
         return jdbcTemplate.query(
                 "SELECT * FROM \"user\"",
                 AuthUserEntityRowMapper.instance);
+    }
+
+    @Override
+    public void remove(AuthUserEntity user) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
+        int affectedRows = jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(
+                    "DELETE FROM \"user\" WHERE id = ?");
+            ps.setObject(1, user.getId());
+            return ps;
+        });
+
+        if (affectedRows == 0) {
+            throw new RuntimeException("Deleting user failed, no rows affected.");
+        }
     }
 
 }

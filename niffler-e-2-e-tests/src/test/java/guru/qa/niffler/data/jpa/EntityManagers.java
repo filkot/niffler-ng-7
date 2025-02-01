@@ -9,20 +9,24 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EntityManagers {
-  private EntityManagers() {
-  }
+    private EntityManagers() {
+    }
 
-  private static final Map<String, EntityManagerFactory> emfs = new ConcurrentHashMap<>();
+    private static final Map<String, EntityManagerFactory> emfs = new ConcurrentHashMap<>();
 
-  public static EntityManager em(String jdbcUrl) {
-    return new ThreadSafeEntityManager(
-        emfs.computeIfAbsent(
-            jdbcUrl,
-            key -> {
-              DataSources.dataSource(jdbcUrl);
-              return Persistence.createEntityManagerFactory(jdbcUrl);
-            }
-        ).createEntityManager()
-    );
-  }
+    public static EntityManager em(String jdbcUrl) {
+        return new ThreadSafeEntityManager(
+                emfs.computeIfAbsent(
+                        jdbcUrl,
+                        key -> {
+                            DataSources.dataSource(jdbcUrl);
+                            return Persistence.createEntityManagerFactory(jdbcUrl);
+                        }
+                ).createEntityManager()
+        );
+    }
+
+    public static void closeAllEmfs() {
+        emfs.values().forEach(EntityManagerFactory::close);
+    }
 }

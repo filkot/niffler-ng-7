@@ -1,11 +1,11 @@
 package guru.qa.niffler.data.repository.impl;
 
 import guru.qa.niffler.config.Config;
-import guru.qa.niffler.data.dao.UdUserDao;
-import guru.qa.niffler.data.dao.impl.UdUserDaoJdbc;
-import guru.qa.niffler.data.entity.user.FriendshipStatus;
-import guru.qa.niffler.data.entity.user.UserEntity;
-import guru.qa.niffler.data.repository.UdUserRepository;
+import guru.qa.niffler.data.dao.UserdataUserDao;
+import guru.qa.niffler.data.dao.impl.UserdataUserDaoJdbc;
+import guru.qa.niffler.data.entity.userdata.FriendshipStatus;
+import guru.qa.niffler.data.entity.userdata.UserEntity;
+import guru.qa.niffler.data.repository.UserdataUserRepository;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -15,10 +15,10 @@ import java.util.UUID;
 
 import static guru.qa.niffler.data.tpl.Connections.holder;
 
-public class UdUserRepositoryJdbc implements UdUserRepository {
+public class UserdataUserRepositoryJdbc implements UserdataUserRepository {
 
     private static final Config CFG = Config.getInstance();
-    private static final UdUserDao userDao = new UdUserDaoJdbc();
+    private static final UserdataUserDao userDao = new UserdataUserDaoJdbc();
 
 
     @Override
@@ -37,7 +37,12 @@ public class UdUserRepositoryJdbc implements UdUserRepository {
     }
 
     @Override
-    public void addInvitation(UserEntity requester, UserEntity addressee) {
+    public UserEntity update(UserEntity user) {
+        return userDao.update(user);
+    }
+
+    @Override
+    public void sendInvitation(UserEntity requester, UserEntity addressee) {
         requester.addInvitations(addressee);
 
         try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
@@ -82,6 +87,11 @@ public class UdUserRepositoryJdbc implements UdUserRepository {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void remove(UserEntity user) {
+        userDao.delete(user);
     }
 
 }
