@@ -69,7 +69,7 @@ public class UsersDbClient implements UsersClient {
     @Override
     public void createOutcomeInvitations(UserJson targetUser, int count) {
         if (count > 0) {
-            UserEntity sourceEntity = udUserRepository.findById(targetUser.id()).orElseThrow();
+            UserEntity targetEntity = udUserRepository.findById(targetUser.id()).orElseThrow();
 
             for (int i = 0; i < count; i++) {
                 xaTxTemplate.execute(() -> {
@@ -80,7 +80,7 @@ public class UsersDbClient implements UsersClient {
                     authUserRepository.create(authUser);
                     UserEntity addressee = udUserRepository.create(userEntity(username));
 
-                    udUserRepository.sendInvitation(addressee, sourceEntity);
+                    udUserRepository.sendInvitation(addressee, targetEntity);
                     return null;
                 });
             }
@@ -90,7 +90,7 @@ public class UsersDbClient implements UsersClient {
     @Override
     public void createFriends(UserJson targetUser, int count) {
         if (count > 0) {
-            UserEntity sourceEntity = udUserRepository.findById(targetUser.id()).orElseThrow();
+            UserEntity targetEntity = udUserRepository.findById(targetUser.id()).orElseThrow();
 
             for (int i = 0; i < count; i++) {
                 xaTxTemplate.execute(() -> {
@@ -101,11 +101,41 @@ public class UsersDbClient implements UsersClient {
                     authUserRepository.create(authUser);
                     UserEntity addressee = udUserRepository.create(userEntity(username));
 
-                    udUserRepository.addFriend(sourceEntity, addressee);
+                    udUserRepository.addFriend(targetEntity, addressee);
                     return null;
                 });
             }
         }
+    }
+
+    public void createFriend(UserJson requester, UserJson addressee) {
+        xaTxTemplate.execute(() -> {
+            UserEntity requesterEntity = udUserRepository.findById(requester.id()).orElseThrow();
+            UserEntity addresseeEntity = udUserRepository.findById(addressee.id()).orElseThrow();
+            udUserRepository.addFriend(requesterEntity, addresseeEntity);
+            return null;
+        });
+
+    }
+
+    public void createIncomeInvitation(UserJson requester, UserJson addressee) {
+        xaTxTemplate.execute(() -> {
+            UserEntity requesterEntity = udUserRepository.findById(requester.id()).orElseThrow();
+            UserEntity addresseeEntity = udUserRepository.findById(addressee.id()).orElseThrow();
+            udUserRepository.sendInvitation(addresseeEntity, requesterEntity);
+            return null;
+        });
+
+    }
+
+    public void createOutcomeInvitation(UserJson requester, UserJson addressee) {
+        xaTxTemplate.execute(() -> {
+            UserEntity requesterEntity = udUserRepository.findById(requester.id()).orElseThrow();
+            UserEntity addresseeEntity = udUserRepository.findById(addressee.id()).orElseThrow();
+            udUserRepository.sendInvitation(requesterEntity, addresseeEntity);
+            return null;
+        });
+
     }
 
     private UserEntity userEntity(String username) {

@@ -22,7 +22,7 @@ public interface SpendApi {
     Call<List<SpendJson>> getSpends(@Query("username") String username);
 
     @DELETE("/internal/spends/remove")
-    Call <Void> deleteSpends(@Query("username") String username,
-                             @Query("ids") List<String> ids);
+    Call<Void> deleteSpends(@Query("username") String username,
+                            @Query("ids") List<String> ids);
 
 }

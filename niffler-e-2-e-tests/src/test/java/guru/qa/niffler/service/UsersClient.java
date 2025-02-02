@@ -10,4 +10,10 @@ public interface UsersClient {
     void createOutcomeInvitations(UserJson targetUser, int count);
 
     void createFriends(UserJson targetUser, int count);
+
+    void createFriend(UserJson requester, UserJson addressee);
+
+    void createIncomeInvitation(UserJson requester, UserJson addressee);
+
+    void createOutcomeInvitation(UserJson requester, UserJson addressee);
 }

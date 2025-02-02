@@ -21,11 +21,11 @@ public class ProfileWebTest {
             )
     )
     @Test
-    void archivedCategoryShouldNotPresentInCategoryList(CategoryJson category) {
+    void archivedCategoryShouldNotPresentInCategoryList(CategoryJson[] category) {
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login("filkot", "12345")
                 .addNewSpending()
-                .shouldNotSeeArchivedCategoryInCategoryList(category.name());
+                .shouldNotSeeArchivedCategoryInCategoryList(category[0].name());
     }
 
     @User(
