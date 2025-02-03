@@ -21,24 +21,10 @@ public class UdUserDaoJdbc implements UdUserDao {
 
     private static final Config CFG = Config.getInstance();
 
-    @NotNull
-    private static UserEntity getUserEntity(ResultSet rs) throws SQLException {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setId(rs.getObject("id", UUID.class));
-        userEntity.setUsername(rs.getString("username"));
-        userEntity.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
-        userEntity.setFullname(rs.getString("full_name"));
-        userEntity.setFirstname(rs.getString("firstname"));
-        userEntity.setSurname(rs.getString("surname"));
-        userEntity.setPhoto(rs.getBytes("photo"));
-        userEntity.setPhotoSmall(rs.getBytes("photo_small"));
-        return userEntity;
-    }
-
     @Override
     public UserEntity create(UserEntity user) {
         try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
-                "INSERT INTO user (username, currency, firstname, surname, full_name, photo, photo_small)" +
+                "INSERT INTO \"user\"  (username, currency, firstname, surname, full_name, photo, photo_small)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 Statement.RETURN_GENERATED_KEYS
         )) {
@@ -71,14 +57,14 @@ public class UdUserDaoJdbc implements UdUserDao {
     @Override
     public Optional<UserEntity> findById(UUID id) {
         try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
-                "SELECT * FROM user WHERE id = ?"
+                "SELECT * FROM \"user\"  WHERE id = ?"
         )) {
             ps.setObject(1, id);
             ps.execute();
 
             try (ResultSet rs = ps.getResultSet()) {
                 if (rs.next()) {
-                    UserEntity userEntity = getUserEntity(rs);
+                    UserEntity userEntity = map(rs);
 
                     return Optional.of(userEntity);
                 } else {
@@ -93,14 +79,14 @@ public class UdUserDaoJdbc implements UdUserDao {
     @Override
     public Optional<UserEntity> findByUsername(String username) {
         try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
-                "SELECT * FROM user WHERE username = ?"
+                "SELECT * FROM \"user\"  WHERE username = ?"
         )) {
             ps.setString(1, username);
             ps.execute();
 
             try (ResultSet rs = ps.getResultSet()) {
                 if (rs.next()) {
-                    UserEntity userEntity = getUserEntity(rs);
+                    UserEntity userEntity = map(rs);
                     return Optional.of(userEntity);
                 } else {
                     return Optional.empty();
@@ -115,13 +101,13 @@ public class UdUserDaoJdbc implements UdUserDao {
     public List<UserEntity> findAll() {
         List<UserEntity> userEntities = new ArrayList<>();
         try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
-                "SELECT * FROM user"
+                "SELECT * FROM \"user\" "
         )) {
             ps.execute();
 
             try (ResultSet rs = ps.getResultSet()) {
                 while (rs.next()) {
-                    UserEntity userEntity = getUserEntity(rs);
+                    UserEntity userEntity = map(rs);
                     userEntities.add(userEntity);
                 }
             }
@@ -134,12 +120,27 @@ public class UdUserDaoJdbc implements UdUserDao {
     @Override
     public void delete(UserEntity user) {
         try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
-                "DELETE FROM user WHERE username = ?"
+                "DELETE FROM \"user\"  WHERE username = ?"
         )) {
             ps.setString(1, user.getUsername());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    @NotNull
+    private UserEntity map(ResultSet rs) throws SQLException {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(rs.getObject("id", UUID.class));
+        userEntity.setUsername(rs.getString("username"));
+        userEntity.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
+        userEntity.setFullname(rs.getString("full_name"));
+        userEntity.setFirstname(rs.getString("firstname"));
+        userEntity.setSurname(rs.getString("surname"));
+        userEntity.setPhoto(rs.getBytes("photo"));
+        userEntity.setPhotoSmall(rs.getBytes("photo_small"));
+        return userEntity;
     }
 }
