@@ -47,7 +47,7 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
 
             try (ResultSet rs = ps.getResultSet()) {
                 while (rs.next()) {
-                    AuthorityEntity authorityEntity = getAuthorityEntity(rs);
+                    AuthorityEntity authorityEntity = map(rs);
                     authorityEntities.add(authorityEntity);
                 }
             }
@@ -57,8 +57,19 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
         return authorityEntities;
     }
 
+    @Override
+    public void remove(AuthorityEntity authorityEntity) {
+        try (PreparedStatement deletePs = holder(CFG.authJdbcUrl()).connection().prepareStatement(
+                "DELETE FROM authority WHERE user_id = ?")) {
+            deletePs.setObject(1, authorityEntity.getUser().getId());
+            deletePs.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @NotNull
-    private static AuthorityEntity getAuthorityEntity(ResultSet rs) throws SQLException {
+    private static AuthorityEntity map(ResultSet rs) throws SQLException {
         AuthorityEntity authority = new AuthorityEntity();
         authority.setId(rs.getObject("id", UUID.class));
         AuthUserEntity userEntity = new AuthUserEntity();
