@@ -10,40 +10,18 @@ import static com.codeborne.selenide.Selenide.$$;
 
 public class AllPeoplePage {
     private final ElementsCollection allPeopleTableRows = $$("#all tr");
-    private final SelenideElement nextPageBtn = $("#page-next");
-    private final SelenideElement prevPageBtn = $("#page-prev");
+    private final SelenideElement searchInput = $("input[aria-label='search']");
 
     public void shouldSeeOutcomeInvitationInAllPeoplesTable(String invitationFriendName) {
-        boolean invitationFound = false;
+        // Вводим имя друга в поле поиска
+        searchInput.setValue(invitationFriendName);
 
+        // Проверяем, что строка с приглашением отображается в таблице
         SelenideElement invitationRow = allPeopleTableRows.find(text(invitationFriendName));
-        invitationRow.should(visible);
+        invitationRow.shouldBe(visible);
 
-
-        // Поиск на текущей странице
-        if (invitationRow.exists()) {
-            String expected = "Waiting...";
-            invitationRow.find("td", 1).shouldHave(text(expected));
-            invitationFound = true;
-        }
-
-        // Если приглашение не найдено и кнопка "nextPageBtn" активна, переходим на следующую страницу
-        while (!invitationFound && nextPageBtn.isEnabled()) {
-            nextPageBtn.click(); // Переход на следующую страницу
-
-            // Поиск на новой странице
-            if (allPeopleTableRows.find(text(invitationFriendName)).exists()) {
-                allPeopleTableRows.find(text(invitationFriendName)).should(visible);
-                String expected = "Waiting...";
-                allPeopleTableRows.find(text(invitationFriendName)).find("td", 1).shouldHave(text(expected));
-                invitationFound = true;
-            }
-        }
-
-        // Если приглашение так и не найдено, выбрасываем исключение
-        if (!invitationFound) {
-            throw new AssertionError("Outcome invitation for '" + invitationFriendName + "' not found in the all peoples table.");
-        }
+        // Проверяем статус приглашения
+        String expectedStatus = "Waiting...";
+        invitationRow.find("td", 1).shouldHave(text(expectedStatus));
     }
-
 }

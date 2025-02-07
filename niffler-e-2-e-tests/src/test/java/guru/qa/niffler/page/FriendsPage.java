@@ -12,8 +12,7 @@ public class FriendsPage {
     private final SelenideElement emptyTabPanelText = $("#simple-tabpanel-friends").$("p");
     private final ElementsCollection friendsTableRows = $$("#friends tr");
     private final ElementsCollection requestsTableRows = $$("#requests tr");
-    private final SelenideElement nextPageBtn = $("#page-next");
-    private final SelenideElement prevPageBtn = $("#page-prev");
+    private final SelenideElement searchInput = $("input[aria-label='search']");
 
     public void shouldSeeEmptyTabPanelFriends() {
         emptyTabPanelText.should(visible);
@@ -22,58 +21,21 @@ public class FriendsPage {
     }
 
     public void shouldSeeFriendInFriendsTable(String friendName) {
-        boolean friendFound = false;
+        // Вводим имя друга в поле поиска
+        searchInput.setValue(friendName);
 
-        SelenideElement invitationRow = friendsTableRows.find(text(friendName));
-        invitationRow.should(visible);
-
-        // Поиск на текущей странице
-        if (invitationRow.exists()) {
-            friendFound = true;
-        }
-
-        // Если друг не найден и кнопка "nextPageBtn" активна, переходим на следующую страницу
-        while (!friendFound && nextPageBtn.isEnabled()) {
-            nextPageBtn.click(); // Переход на следующую страницу
-
-            // Поиск на новой странице
-            if (friendsTableRows.find(text(friendName)).exists()) {
-                friendsTableRows.find(text(friendName)).should(visible);
-                friendFound = true;
-            }
-        }
-
-        // Если друг так и не найден, выбрасываем исключение
-        if (!friendFound) {
-            throw new AssertionError("Friend '" + friendName + "' not found in the friends table.");
-        }
+        // Проверяем, что строка с именем друга отображается в таблице
+        SelenideElement friendRow = friendsTableRows.find(text(friendName));
+        friendRow.shouldBe(visible);
     }
 
+
     public void shouldSeeFriendNameRequestInRequestsTable(String friendNameRequest) {
-        boolean requestFound = false;
+        // Вводим имя друга в поле поиска
+        searchInput.setValue(friendNameRequest);
 
-        SelenideElement invitationRow = requestsTableRows.find(text(friendNameRequest));
-        invitationRow.should(visible);
-
-        // Поиск на текущей странице
-        if (invitationRow.exists()) {
-            requestFound = true;
-        }
-
-        // Если запрос не найден и кнопка "nextPageBtn" активна, переходим на следующую страницу
-        while (!requestFound && nextPageBtn.isEnabled()) {
-            nextPageBtn.click(); // Переход на следующую страницу
-
-            // Поиск на новой странице
-            if (requestsTableRows.find(text(friendNameRequest)).exists()) {
-                requestsTableRows.find(text(friendNameRequest)).should(visible);
-                requestFound = true;
-            }
-        }
-
-        // Если запрос так и не найден, выбрасываем исключение
-        if (!requestFound) {
-            throw new AssertionError("Friend request from '" + friendNameRequest + "' not found in the requests table.");
-        }
+        // Проверяем, что строка с запросом от друга отображается в таблице
+        SelenideElement requestRow = requestsTableRows.find(text(friendNameRequest));
+        requestRow.shouldBe(visible);
     }
 }
