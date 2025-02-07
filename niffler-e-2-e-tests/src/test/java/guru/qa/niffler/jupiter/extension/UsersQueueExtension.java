@@ -1,10 +1,10 @@
 package guru.qa.niffler.jupiter.extension;
 
+import guru.qa.niffler.jupiter.extension.UsersQueueExtension.UserType.Type;
 import io.qameta.allure.Allure;
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.jupiter.api.extension.*;
 import org.junit.platform.commons.support.AnnotationSupport;
-import guru.qa.niffler.jupiter.extension.UsersQueueExtension.UserType.Type;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

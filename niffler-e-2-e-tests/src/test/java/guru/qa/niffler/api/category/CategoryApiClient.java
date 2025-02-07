@@ -10,6 +10,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -41,6 +42,18 @@ public class CategoryApiClient {
         final Response<CategoryJson> response;
         try {
             response = categoryApi.updateCategory(category)
+                    .execute();
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }
+        assertEquals(HttpStatus.SC_SUCCESS, response.code());
+        return response.body();
+    }
+
+    public List<CategoryJson> getAllCategories(String username, boolean excludeArchived ) {
+        final Response<List<CategoryJson>> response;
+        try {
+            response = categoryApi.getCategories(username, excludeArchived)
                     .execute();
         } catch (IOException e) {
             throw new AssertionError(e);

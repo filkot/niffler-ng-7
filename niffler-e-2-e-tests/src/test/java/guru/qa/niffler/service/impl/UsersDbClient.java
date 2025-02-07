@@ -108,6 +108,36 @@ public class UsersDbClient implements UsersClient {
         }
     }
 
+    public void createFriend(UserJson requester, UserJson addressee) {
+        xaTxTemplate.execute(() -> {
+            UserEntity requesterEntity = udUserRepository.findById(requester.id()).orElseThrow();
+            UserEntity addresseeEntity = udUserRepository.findById(addressee.id()).orElseThrow();
+            udUserRepository.addFriend(requesterEntity, addresseeEntity);
+            return null;
+        });
+
+    }
+
+    public void createIncomeInvitation(UserJson requester, UserJson addressee) {
+        xaTxTemplate.execute(() -> {
+            UserEntity requesterEntity = udUserRepository.findById(requester.id()).orElseThrow();
+            UserEntity addresseeEntity = udUserRepository.findById(addressee.id()).orElseThrow();
+            udUserRepository.sendInvitation(addresseeEntity, requesterEntity);
+            return null;
+        });
+
+    }
+
+    public void createOutcomeInvitation(UserJson requester, UserJson addressee) {
+        xaTxTemplate.execute(() -> {
+            UserEntity requesterEntity = udUserRepository.findById(requester.id()).orElseThrow();
+            UserEntity addresseeEntity = udUserRepository.findById(addressee.id()).orElseThrow();
+            udUserRepository.sendInvitation(requesterEntity, addresseeEntity);
+            return null;
+        });
+
+    }
+
     private UserEntity userEntity(String username) {
         UserEntity ue = new UserEntity();
         ue.setUsername(username);

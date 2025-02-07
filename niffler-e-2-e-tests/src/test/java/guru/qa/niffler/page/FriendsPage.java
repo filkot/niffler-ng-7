@@ -12,6 +12,7 @@ public class FriendsPage {
     private final SelenideElement emptyTabPanelText = $("#simple-tabpanel-friends").$("p");
     private final ElementsCollection friendsTableRows = $$("#friends tr");
     private final ElementsCollection requestsTableRows = $$("#requests tr");
+    private final SelenideElement searchInput = $("input[aria-label='search']");
 
     public void shouldSeeEmptyTabPanelFriends() {
         emptyTabPanelText.should(visible);
@@ -20,11 +21,21 @@ public class FriendsPage {
     }
 
     public void shouldSeeFriendInFriendsTable(String friendName) {
-        friendsTableRows.find(text(friendName)).should(visible);
+        // Вводим имя друга в поле поиска
+        searchInput.setValue(friendName);
+
+        // Проверяем, что строка с именем друга отображается в таблице
+        SelenideElement friendRow = friendsTableRows.find(text(friendName));
+        friendRow.shouldBe(visible);
     }
+
 
     public void shouldSeeFriendNameRequestInRequestsTable(String friendNameRequest) {
-        requestsTableRows.find(text(friendNameRequest)).should(visible);
-    }
+        // Вводим имя друга в поле поиска
+        searchInput.setValue(friendNameRequest);
 
+        // Проверяем, что строка с запросом от друга отображается в таблице
+        SelenideElement requestRow = requestsTableRows.find(text(friendNameRequest));
+        requestRow.shouldBe(visible);
+    }
 }

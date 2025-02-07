@@ -10,7 +10,7 @@ import static com.codeborne.selenide.Selenide.$;
 
 public class MainPage {
     private final ElementsCollection tableRows = $("#spendings tbody").$$("tr");
-    private final SelenideElement historyOfSpending = $("#spending");
+    private final SelenideElement historyOfSpending = $("#spendings");
     private final SelenideElement statistic = $("#stat");
     private final SelenideElement newSpendingLink = $(By.xpath("//a[@href = '/spending']"));
     private final SelenideElement menuBtn = $("button[aria-label='Menu']");
