@@ -2,19 +2,19 @@ package guru.qa.niffler.page;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import guru.qa.niffler.page.component.SearchField;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
-import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
 public class AllPeoplePage {
+    private final SearchField searchField = new SearchField();
     private final ElementsCollection allPeopleTableRows = $$("#all tr");
-    private final SelenideElement searchInput = $("input[aria-label='search']");
 
     public void shouldSeeOutcomeInvitationInAllPeoplesTable(String invitationFriendName) {
         // Вводим имя друга в поле поиска
-        searchInput.setValue(invitationFriendName);
+        searchField.search(invitationFriendName);
 
         // Проверяем, что строка с приглашением отображается в таблице
         SelenideElement invitationRow = allPeopleTableRows.find(text(invitationFriendName));

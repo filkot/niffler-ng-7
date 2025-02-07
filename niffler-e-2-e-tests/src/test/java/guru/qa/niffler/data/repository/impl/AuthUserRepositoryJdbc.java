@@ -11,6 +11,8 @@ import guru.qa.niffler.data.entity.auth.AuthorityEntity;
 import guru.qa.niffler.data.mapper.AuthUserEntityResultSetExtractor;
 import guru.qa.niffler.data.repository.AuthUserRepository;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,6 +23,7 @@ import java.util.UUID;
 
 import static guru.qa.niffler.data.tpl.Connections.holder;
 
+@ParametersAreNonnullByDefault
 public class AuthUserRepositoryJdbc implements AuthUserRepository {
 
     private static final Config CFG = Config.getInstance();
@@ -29,7 +32,7 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
     private final AuthAuthorityDao authAuthorityDao = new AuthAuthorityDaoJdbc();
 
     @Override
-    public AuthUserEntity create(AuthUserEntity user) {
+    public @Nonnull AuthUserEntity create(AuthUserEntity user) {
         AuthUserEntity authUserEntity = authUserDao.create(user);
         authAuthorityDao.create(user.
                 getAuthorities().toArray(new AuthorityEntity[0]));
@@ -37,7 +40,7 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
     }
 
     @Override
-    public AuthUserEntity update(AuthUserEntity user) {
+    public @Nonnull AuthUserEntity update(AuthUserEntity user) {
         AuthUserEntity updatedUser = authUserDao.update(user);
         authAuthorityDao.remove(user.getAuthorities().getFirst());
         authAuthorityDao.create(user.
@@ -46,7 +49,7 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
     }
 
     @Override
-    public Optional<AuthUserEntity> findById(UUID id) {
+    public @Nonnull Optional<AuthUserEntity> findById(UUID id) {
         try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
                 "SELECT a.id as authority_id,\n" +
                         " authority,\n" +
@@ -90,7 +93,7 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
     }
 
     @Override
-    public Optional<AuthUserEntity> findByUsername(String username) {
+    public @Nonnull Optional<AuthUserEntity> findByUsername(String username) {
         return Optional.empty();
     }
 

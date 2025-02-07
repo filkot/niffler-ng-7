@@ -7,11 +7,14 @@ import guru.qa.niffler.data.repository.UserdataUserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Optional;
 import java.util.UUID;
 
 import static guru.qa.niffler.data.jpa.EntityManagers.em;
 
+@ParametersAreNonnullByDefault
 public class UserdataUserRepositoryHibernate implements UserdataUserRepository {
 
     private static final Config CFG = Config.getInstance();
@@ -19,21 +22,21 @@ public class UserdataUserRepositoryHibernate implements UserdataUserRepository {
 
 
     @Override
-    public UserEntity create(UserEntity user) {
+    public @Nonnull UserEntity create(UserEntity user) {
         entityManager.joinTransaction();
         entityManager.persist(user);
         return user;
     }
 
     @Override
-    public Optional<UserEntity> findById(UUID id) {
+    public @Nonnull Optional<UserEntity> findById(UUID id) {
         return Optional.ofNullable(
                 entityManager.find(UserEntity.class, id)
         );
     }
 
     @Override
-    public Optional<UserEntity> findByUsername(String username) {
+    public @Nonnull Optional<UserEntity> findByUsername(String username) {
         try {
             return Optional.of(entityManager
                     .createQuery("select u from UserEntity u where u.username =: username",
@@ -46,7 +49,7 @@ public class UserdataUserRepositoryHibernate implements UserdataUserRepository {
     }
 
     @Override
-    public UserEntity update(UserEntity user) {
+    public @Nonnull UserEntity update(UserEntity user) {
         entityManager.joinTransaction();
         entityManager.merge(user);
         return user;

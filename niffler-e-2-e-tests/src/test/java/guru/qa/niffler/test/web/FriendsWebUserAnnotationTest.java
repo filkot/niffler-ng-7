@@ -37,7 +37,7 @@ public class FriendsWebUserAnnotationTest {
                 .login(user.username(), user.testData().password())
                 .openFriendsPage()
                 .shouldSeeFriendInFriendsTable(
-                        user.testData().friends().get(0).username());
+                        user.testData().friends().getFirst().username());
 
     }
 
@@ -52,7 +52,7 @@ public class FriendsWebUserAnnotationTest {
                 .login(user.username(), user.testData().password())
                 .openFriendsPage()
                 .shouldSeeFriendNameRequestInRequestsTable(
-                        user.testData().incomeInvitations().get(0).username());
+                        user.testData().incomeInvitations().getFirst().username());
 
     }
 
@@ -67,6 +67,34 @@ public class FriendsWebUserAnnotationTest {
                 .login(user.username(), user.testData().password())
                 .openAllPeoplePage()
                 .shouldSeeOutcomeInvitationInAllPeoplesTable(
-                        user.testData().outcomeInvitations().get(0).username());
+                        user.testData().outcomeInvitations().getFirst().username());
+    }
+
+    @User(
+            incomeInvitations = {
+                    @IncomeInvitation
+            }
+    )
+    @Test
+    void shouldBeAbleToAcceptFriendRequest(UserJson user) {
+        Selenide.open(CFG.frontUrl(), LoginPage.class)
+                .login(user.username(), user.testData().password())
+                .openFriendsPage()
+                .acceptFriendInvitation()
+                .checkAmountOfFriends(1);
+    }
+
+    @User(
+            incomeInvitations = {
+                    @IncomeInvitation
+            }
+    )
+    @Test
+    void shouldBeAbleToDeclineFriendRequest(UserJson user) {
+        Selenide.open(CFG.frontUrl(), LoginPage.class)
+                .login(user.username(), user.testData().password())
+                .openFriendsPage()
+                .declineFriendInvitation()
+                .checkAmountOfFriends(0);
     }
 }

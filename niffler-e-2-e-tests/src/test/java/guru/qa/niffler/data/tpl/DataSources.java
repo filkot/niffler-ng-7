@@ -4,6 +4,8 @@ import com.atomikos.jdbc.AtomikosDataSourceBean;
 import org.apache.commons.lang3.StringUtils;
 import org.postgresql.ds.PGSimpleDataSource;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
@@ -11,6 +13,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+@ParametersAreNonnullByDefault
 public class DataSources {
     private DataSources() {
     }
@@ -18,7 +21,7 @@ public class DataSources {
     private static final Map<String, DataSource> dataSources = new ConcurrentHashMap<>();
     private static final Map<String, DataSource> dataSourcesChained = new ConcurrentHashMap<>();
 
-    public static DataSource dataSource(String jdbcUrl) {
+    public static @Nonnull DataSource dataSource(String jdbcUrl) {
         return dataSources.computeIfAbsent(
                 jdbcUrl,
                 key -> {
@@ -46,7 +49,7 @@ public class DataSources {
     }
 
 
-    public static DataSource dataSourceChained(String jdbcUrl) {
+    public static @Nonnull DataSource dataSourceChained(String jdbcUrl) {
         return dataSourcesChained.computeIfAbsent(
                 jdbcUrl,
                 key -> {

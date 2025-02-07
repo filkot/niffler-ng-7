@@ -3,8 +3,9 @@ package guru.qa.niffler.data.dao.impl;
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.CategoryDao;
 import guru.qa.niffler.data.entity.spend.CategoryEntity;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,22 +17,13 @@ import java.util.UUID;
 
 import static guru.qa.niffler.data.tpl.Connections.holder;
 
+@ParametersAreNonnullByDefault
 public class CategoryDaoJdbc implements CategoryDao {
 
     private static final Config CFG = Config.getInstance();
 
-    @NotNull
-    private CategoryEntity getCategoryEntity(ResultSet rs) throws SQLException {
-        CategoryEntity categoryEntity = new CategoryEntity();
-        categoryEntity.setId(rs.getObject("id", UUID.class));
-        categoryEntity.setUsername(rs.getString("username"));
-        categoryEntity.setName(rs.getString("name"));
-        categoryEntity.setArchived(rs.getBoolean("archived"));
-        return categoryEntity;
-    }
-
     @Override
-    public CategoryEntity create(CategoryEntity category) {
+    public @Nonnull CategoryEntity create(CategoryEntity category) {
         try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
                 "INSERT INTO category (username, name, archived)" +
                         "VALUES (?, ?, ?)",
@@ -60,7 +52,7 @@ public class CategoryDaoJdbc implements CategoryDao {
     }
 
     @Override
-    public Optional<CategoryEntity> findCategoryById(UUID id) {
+    public @Nonnull Optional<CategoryEntity> findCategoryById(UUID id) {
         try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
                 "SELECT * FROM category WHERE id = ?"
         )) {
@@ -69,7 +61,7 @@ public class CategoryDaoJdbc implements CategoryDao {
 
             try (ResultSet rs = ps.getResultSet()) {
                 if (rs.next()) {
-                    CategoryEntity categoryEntity = getCategoryEntity(rs);
+                    CategoryEntity categoryEntity = map(rs);
                     return Optional.of(categoryEntity);
                 } else {
                     return Optional.empty();
@@ -81,7 +73,7 @@ public class CategoryDaoJdbc implements CategoryDao {
     }
 
     @Override
-    public Optional<CategoryEntity> findCategoryByUsernameAndCategoryName(String username, String categoryName) {
+    public @Nonnull Optional<CategoryEntity> findCategoryByUsernameAndCategoryName(String username, String categoryName) {
         try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
                 "SELECT * FROM category WHERE username = ? AND name = ?"
         )) {
@@ -91,7 +83,7 @@ public class CategoryDaoJdbc implements CategoryDao {
 
             try (ResultSet rs = ps.getResultSet()) {
                 if (rs.next()) {
-                    CategoryEntity categoryEntity = getCategoryEntity(rs);
+                    CategoryEntity categoryEntity = map(rs);
                     return Optional.of(categoryEntity);
                 } else {
                     return Optional.empty();
@@ -103,7 +95,7 @@ public class CategoryDaoJdbc implements CategoryDao {
     }
 
     @Override
-    public List<CategoryEntity> findAllByUsername(String username) {
+    public @Nonnull List<CategoryEntity> findAllByUsername(String username) {
         try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
                 "SELECT * FROM category WHERE username = ?"
         )) {
@@ -113,7 +105,7 @@ public class CategoryDaoJdbc implements CategoryDao {
             List<CategoryEntity> list = new ArrayList<>();
             try (ResultSet rs = ps.getResultSet()) {
                 while (rs.next()) {
-                    CategoryEntity categoryEntity = getCategoryEntity(rs);
+                    CategoryEntity categoryEntity = map(rs);
                     list.add(categoryEntity);
                 }
             }
@@ -124,7 +116,7 @@ public class CategoryDaoJdbc implements CategoryDao {
     }
 
     @Override
-    public List<CategoryEntity> findAll() {
+    public @Nonnull List<CategoryEntity> findAll() {
         try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
                 "SELECT * FROM category"
         )) {
@@ -133,7 +125,7 @@ public class CategoryDaoJdbc implements CategoryDao {
             List<CategoryEntity> list = new ArrayList<>();
             try (ResultSet rs = ps.getResultSet()) {
                 while (rs.next()) {
-                    CategoryEntity categoryEntity = getCategoryEntity(rs);
+                    CategoryEntity categoryEntity = map(rs);
                     list.add(categoryEntity);
                 }
             }
@@ -153,5 +145,14 @@ public class CategoryDaoJdbc implements CategoryDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private @Nonnull CategoryEntity map(ResultSet rs) throws SQLException {
+        CategoryEntity categoryEntity = new CategoryEntity();
+        categoryEntity.setId(rs.getObject("id", UUID.class));
+        categoryEntity.setUsername(rs.getString("username"));
+        categoryEntity.setName(rs.getString("name"));
+        categoryEntity.setArchived(rs.getBoolean("archived"));
+        return categoryEntity;
     }
 }

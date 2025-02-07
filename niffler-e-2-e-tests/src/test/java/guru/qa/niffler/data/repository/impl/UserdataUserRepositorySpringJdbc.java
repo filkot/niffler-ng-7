@@ -6,30 +6,33 @@ import guru.qa.niffler.data.entity.userdata.FriendshipStatus;
 import guru.qa.niffler.data.entity.userdata.UserEntity;
 import guru.qa.niffler.data.repository.UserdataUserRepository;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Optional;
 import java.util.UUID;
 
+@ParametersAreNonnullByDefault
 public class UserdataUserRepositorySpringJdbc implements UserdataUserRepository {
 
     private final UserdataUserDao userDaoSpringJdbc = new UserdataUserDaoSpringJdbc();
 
     @Override
-    public UserEntity create(UserEntity user) {
+    public @Nonnull UserEntity create(UserEntity user) {
         return userDaoSpringJdbc.create(user);
     }
 
     @Override
-    public Optional<UserEntity> findById(UUID id) {
+    public @Nonnull Optional<UserEntity> findById(UUID id) {
         return userDaoSpringJdbc.findById(id);
     }
 
     @Override
-    public Optional<UserEntity> findByUsername(String username) {
+    public @Nonnull Optional<UserEntity> findByUsername(String username) {
         return userDaoSpringJdbc.findByUsername(username);
     }
 
     @Override
-    public UserEntity update(UserEntity user) {
+    public @Nonnull UserEntity update(UserEntity user) {
         return userDaoSpringJdbc.update(user);
     }
 

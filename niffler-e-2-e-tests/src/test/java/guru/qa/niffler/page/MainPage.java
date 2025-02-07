@@ -1,46 +1,49 @@
 package guru.qa.niffler.page;
 
-import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
-import org.openqa.selenium.By;
+import guru.qa.niffler.page.component.Header;
+import guru.qa.niffler.page.component.SearchField;
+import guru.qa.niffler.page.component.SpendingTable;
 
-import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
 public class MainPage {
-    private final ElementsCollection tableRows = $("#spendings tbody").$$("tr");
+
+    private final SearchField searchField = new SearchField();
+    private final Header header = new Header();
+    private final SpendingTable spendings = new SpendingTable();
+
+
     private final SelenideElement historyOfSpending = $("#spendings");
     private final SelenideElement statistic = $("#stat");
-    private final SelenideElement newSpendingLink = $(By.xpath("//a[@href = '/spending']"));
-    private final SelenideElement menuBtn = $("button[aria-label='Menu']");
-    private final SelenideElement friendsLink = $("a[href='/people/friends']");
-    private final SelenideElement allPeopleLink = $("a[href='/people/all']");
+
+    public SpendingTable spendingTable() {
+        return spendings;
+    }
 
     public EditSpendingPage editSpending(String spendingDescription) {
-        tableRows.find(text(spendingDescription)).$$("td").get(5).click();
-        return new EditSpendingPage();
+        return spendings.editSpending(spendingDescription);
     }
 
     public EditSpendingPage addNewSpending() {
-        newSpendingLink.click();
-        return new EditSpendingPage();
+        return header.addSpending();
+    }
+
+    public ProfilePage openProfilePage() {
+        return header.goToProfilePage();
     }
 
     public FriendsPage openFriendsPage() {
-        menuBtn.click();
-        friendsLink.should(visible).click();
-        return new FriendsPage();
+        return header.goToFriendsPage();
     }
 
     public AllPeoplePage openAllPeoplePage() {
-        menuBtn.click();
-        allPeopleLink.should(visible).click();
-        return new AllPeoplePage();
+        return header.goToAllPeoplePage();
     }
 
     public void checkThatTableContainsSpending(String spendingDescription) {
-        tableRows.find(text(spendingDescription)).should(visible);
+        spendings.checkTableContainsSpending(spendingDescription);
     }
 
     public void checkThatMainPageVisible() {
