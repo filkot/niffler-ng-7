@@ -6,6 +6,7 @@ import guru.qa.niffler.config.Config;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.service.SpendClient;
+import io.qameta.allure.Step;
 
 import java.util.*;
 
@@ -17,6 +18,7 @@ public class SpendAPIClient implements SpendClient {
     private final CategoryApiClient categoryApiClient = new CategoryApiClient();
 
 
+    @Step("Создание траты через API")
     public SpendJson createSpend(SpendJson spend) {
         if (spend == null) {
             throw new IllegalArgumentException("Spend cannot be null");
@@ -24,6 +26,7 @@ public class SpendAPIClient implements SpendClient {
         return spendApiClient.createSpend(spend);
     }
 
+    @Step("Обновление траты через API")
     public SpendJson editSpend(SpendJson spend) {
         if (spend == null) {
             throw new IllegalArgumentException("Spend cannot be null");
@@ -31,17 +34,20 @@ public class SpendAPIClient implements SpendClient {
         return spendApiClient.editSpend(spend);
     }
 
+    @Step("Поиск траты по id {id} через API")
     public Optional<SpendJson> findSpendById(UUID id) {
         throw new UnsupportedOperationException("Invalid operation for spend");
     }
 
+    @Step("Поиск траты по username {username} через API")
     public List<SpendJson> findAllByUsername(String username) {
         if (username == null) {
             throw new IllegalArgumentException("Username cannot be null");
         }
-        return spendApiClient.getAllSpends(username);
+        return spendApiClient.getAllSpends(username, null, null, null);
     }
 
+    @Step("Удаление траты через API")
     public void deleteSpend(SpendJson spend) {
         if (spend == null) {
             throw new IllegalArgumentException("Spend cannot be null");
@@ -49,6 +55,7 @@ public class SpendAPIClient implements SpendClient {
         spendApiClient.deleteSpends(spend.username(), Collections.singletonList(spend.id().toString()));
     }
 
+    @Step("Создание категории через API")
     public CategoryJson createCategory(CategoryJson category) {
         if (category == null) {
             throw new IllegalArgumentException("Category cannot be null");
@@ -56,6 +63,7 @@ public class SpendAPIClient implements SpendClient {
         return categoryApiClient.createCategory(category);
     }
 
+    @Step("Поиск категории по username {username} и categoryName {categoryName} через API")
     public Optional<CategoryJson> findCategoryByUsernameAndCategoryName(String username, String categoryName) {
         if (username == null || categoryName == null) {
             throw new IllegalArgumentException("Username and categoryName cannot be null");
@@ -67,6 +75,7 @@ public class SpendAPIClient implements SpendClient {
                 .findFirst();
     }
 
+    @Step("Удаление категории через API")
     public void deleteCategory(CategoryJson category) {
         throw new UnsupportedOperationException("Invalid operation for category");
     }

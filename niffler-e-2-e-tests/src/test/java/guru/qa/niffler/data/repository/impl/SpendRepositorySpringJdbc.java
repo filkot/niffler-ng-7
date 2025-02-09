@@ -12,10 +12,13 @@ import guru.qa.niffler.data.repository.SpendRepository;
 import guru.qa.niffler.data.tpl.DataSources;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@ParametersAreNonnullByDefault
 public class SpendRepositorySpringJdbc implements SpendRepository {
 
     private static final Config CFG = Config.getInstance();
@@ -24,7 +27,7 @@ public class SpendRepositorySpringJdbc implements SpendRepository {
 
 
     @Override
-    public SpendEntity create(SpendEntity spend) {
+    public @Nonnull SpendEntity create(SpendEntity spend) {
         final UUID categoryId = spend.getCategory().getId();
         if (categoryId == null && categoryDao.findCategoryById(categoryId).isEmpty()) {
             spend.setCategory(
@@ -35,32 +38,32 @@ public class SpendRepositorySpringJdbc implements SpendRepository {
     }
 
     @Override
-    public SpendEntity update(SpendEntity spend) {
+    public @Nonnull SpendEntity update(SpendEntity spend) {
         return spendDao.update(spend);
     }
 
     @Override
-    public CategoryEntity createCategory(CategoryEntity category) {
+    public @Nonnull CategoryEntity createCategory(CategoryEntity category) {
         return categoryDao.create(category);
     }
 
     @Override
-    public Optional<CategoryEntity> findCategoryById(UUID id) {
+    public @Nonnull Optional<CategoryEntity> findCategoryById(UUID id) {
         return categoryDao.findCategoryById(id);
     }
 
     @Override
-    public Optional<CategoryEntity> findCategoryByUsernameAndSpendName(String username, String name) {
+    public @Nonnull Optional<CategoryEntity> findCategoryByUsernameAndSpendName(String username, String name) {
         return categoryDao.findCategoryByUsernameAndCategoryName(username, name);
     }
 
     @Override
-    public Optional<SpendEntity> findById(UUID id) {
+    public @Nonnull Optional<SpendEntity> findById(UUID id) {
         return spendDao.findSpendById(id);
     }
 
     @Override
-    public Optional<SpendEntity> findByUsernameAndSpendDescription(String username, String description) {
+    public @Nonnull Optional<SpendEntity> findByUsernameAndSpendDescription(String username, String description) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.spendJdbcUrl()));
         return Optional.ofNullable(
                 jdbcTemplate.queryForObject(
@@ -73,7 +76,7 @@ public class SpendRepositorySpringJdbc implements SpendRepository {
     }
 
     @Override
-    public List<SpendEntity> findByUsername(String username) {
+    public @Nonnull List<SpendEntity> findByUsername(String username) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.spendJdbcUrl()));
         return jdbcTemplate.query(
                 "SELECT * FROM spend WHERE username = ?",

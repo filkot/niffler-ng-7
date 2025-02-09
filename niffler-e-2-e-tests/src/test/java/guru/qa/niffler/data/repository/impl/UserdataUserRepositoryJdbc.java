@@ -7,6 +7,8 @@ import guru.qa.niffler.data.entity.userdata.FriendshipStatus;
 import guru.qa.niffler.data.entity.userdata.UserEntity;
 import guru.qa.niffler.data.repository.UserdataUserRepository;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -15,6 +17,7 @@ import java.util.UUID;
 
 import static guru.qa.niffler.data.tpl.Connections.holder;
 
+@ParametersAreNonnullByDefault
 public class UserdataUserRepositoryJdbc implements UserdataUserRepository {
 
     private static final Config CFG = Config.getInstance();
@@ -22,22 +25,22 @@ public class UserdataUserRepositoryJdbc implements UserdataUserRepository {
 
 
     @Override
-    public UserEntity create(UserEntity user) {
+    public @Nonnull UserEntity create(UserEntity user) {
         return userDao.create(user);
     }
 
     @Override
-    public Optional<UserEntity> findById(UUID id) {
+    public @Nonnull Optional<UserEntity> findById(UUID id) {
         return userDao.findById(id);
     }
 
     @Override
-    public Optional<UserEntity> findByUsername(String username) {
+    public @Nonnull Optional<UserEntity> findByUsername(String username) {
         return userDao.findByUsername(username);
     }
 
     @Override
-    public UserEntity update(UserEntity user) {
+    public @Nonnull UserEntity update(UserEntity user) {
         return userDao.update(user);
     }
 

@@ -6,7 +6,9 @@ import guru.qa.niffler.jupiter.annotation.Category;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.jupiter.annotation.meta.WebTest;
 import guru.qa.niffler.model.CategoryJson;
+import guru.qa.niffler.model.UserJson;
 import guru.qa.niffler.page.LoginPage;
+import guru.qa.niffler.utils.RandomDataUtils;
 import org.junit.jupiter.api.Test;
 
 @WebTest
@@ -40,5 +42,16 @@ public class ProfileWebTest {
                 .login("filkot", "12345")
                 .addNewSpending()
                 .shouldSeeActiveCategoryInCategoryList(category.name());
+    }
+
+    @User
+    @Test
+    void userInfoShouldBeSavedAfterEditing(UserJson user) {
+        final String name = RandomDataUtils.getRandomName();
+        Selenide.open(CFG.frontUrl(), LoginPage.class)
+                .login(user.username(), user.testData().password())
+                .openProfilePage()
+                .setName(name)
+                .checkName(name);
     }
 }

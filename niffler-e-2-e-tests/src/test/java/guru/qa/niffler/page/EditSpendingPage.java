@@ -2,6 +2,7 @@ package guru.qa.niffler.page;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import guru.qa.niffler.page.component.Calendar;
 import org.openqa.selenium.By;
 
 import static com.codeborne.selenide.Selenide.$;
@@ -13,6 +14,8 @@ public class EditSpendingPage {
     private final SelenideElement descriptionInput = $("#description");
     private final SelenideElement saveBtn = $("#save");
     private final ElementsCollection categoryList = $$(By.xpath("//li//span"));
+
+    private final Calendar calendar = new Calendar($(".MuiDateCalendar-root"));
 
     public EditSpendingPage setNewSpendingDescription(String description) {
         descriptionInput.clear();

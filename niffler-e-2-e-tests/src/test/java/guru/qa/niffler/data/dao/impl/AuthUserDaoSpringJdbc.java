@@ -12,18 +12,21 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@ParametersAreNonnullByDefault
 public class AuthUserDaoSpringJdbc implements AuthUserDao {
     private static final PasswordEncoder pe = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
     private static final Config CFG = Config.getInstance();
 
     @Override
-    public AuthUserEntity create(AuthUserEntity user) {
+    public @Nonnull AuthUserEntity create(AuthUserEntity user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
         KeyHolder kh = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
@@ -49,7 +52,7 @@ public class AuthUserDaoSpringJdbc implements AuthUserDao {
     }
 
     @Override
-    public AuthUserEntity update(AuthUserEntity user) {
+    public @Nonnull AuthUserEntity update(AuthUserEntity user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
         int affectedRows = jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
@@ -73,7 +76,7 @@ public class AuthUserDaoSpringJdbc implements AuthUserDao {
     }
 
     @Override
-    public Optional<AuthUserEntity> findById(UUID id) {
+    public @Nonnull Optional<AuthUserEntity> findById(UUID id) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
         try {
             return Optional.ofNullable(
@@ -89,7 +92,7 @@ public class AuthUserDaoSpringJdbc implements AuthUserDao {
     }
 
     @Override
-    public List<AuthUserEntity> findAll() {
+    public @Nonnull List<AuthUserEntity> findAll() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
         return jdbcTemplate.query(
                 "SELECT * FROM \"user\"",

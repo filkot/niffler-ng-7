@@ -12,18 +12,20 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@ParametersAreNonnullByDefault
 public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
 
     private static final Config CFG = Config.getInstance();
 
     @Override
-    public UserEntity create(UserEntity user) {
+    public @Nonnull UserEntity create(UserEntity user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
         KeyHolder kh = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
@@ -53,7 +55,7 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
     }
 
     @Override
-    public UserEntity update(UserEntity user) {
+    public @Nonnull UserEntity update(UserEntity user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
         jdbcTemplate.update("""
                                       UPDATE "user"
@@ -95,7 +97,7 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
     }
 
     @Override
-    public Optional<UserEntity> findById(UUID id) {
+    public @Nonnull Optional<UserEntity> findById(UUID id) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
         try {
             return Optional.ofNullable(
@@ -111,7 +113,7 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
     }
 
     @Override
-    public Optional<UserEntity> findByUsername(String username) {
+    public @Nonnull Optional<UserEntity> findByUsername(String username) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
         return Optional.ofNullable(
                 jdbcTemplate.queryForObject(
@@ -123,7 +125,7 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
     }
 
     @Override
-    public List<UserEntity> findAll() {
+    public @Nonnull List<UserEntity> findAll() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
         return jdbcTemplate.query(
                 "SELECT * FROM \"user\"",

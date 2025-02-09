@@ -10,6 +10,12 @@ import jakarta.persistence.metamodel.Metamodel;
 import java.util.List;
 import java.util.Map;
 
+
+/**
+ * EntityManager по спецификации является не потока безопасным.
+ * Этот декоратор обеспечивает разделения EntityManager между потоками,
+ * чтобы каждый поток взаимодействовал только со своим инстансом EntityManager
+ */
 public class ThreadSafeEntityManager implements EntityManager {
 
     private final ThreadLocal<EntityManager> threadEm = new ThreadLocal<>();
@@ -20,18 +26,17 @@ public class ThreadSafeEntityManager implements EntityManager {
         emf = delegate.getEntityManagerFactory();
     }
 
-    private EntityManager threadEm(){
-        if (threadEm.get() == null || !threadEm.get().isOpen()){
+    private EntityManager threadEm() {
+        if (threadEm.get() == null || !threadEm.get().isOpen()) {
             threadEm.set(emf.createEntityManager());
         }
         return threadEm.get();
     }
 
 
-
     @Override
     public void close() {
-        if (threadEm.get() != null && threadEm.get().isOpen()){
+        if (threadEm.get() != null && threadEm.get().isOpen()) {
             threadEm.get().close();
             threadEm.remove();
         }

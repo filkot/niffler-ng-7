@@ -5,8 +5,9 @@ import guru.qa.niffler.data.dao.UserdataUserDao;
 import guru.qa.niffler.data.entity.userdata.FriendshipEntity;
 import guru.qa.niffler.data.entity.userdata.UserEntity;
 import guru.qa.niffler.model.CurrencyValues;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,12 +19,13 @@ import java.util.UUID;
 
 import static guru.qa.niffler.data.tpl.Connections.holder;
 
+@ParametersAreNonnullByDefault
 public class UserdataUserDaoJdbc implements UserdataUserDao {
 
     private static final Config CFG = Config.getInstance();
 
     @Override
-    public UserEntity create(UserEntity user) {
+    public @Nonnull UserEntity create(UserEntity user) {
         try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
                 "INSERT INTO \"user\"  (username, currency, firstname, surname, full_name, photo, photo_small)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -56,7 +58,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     }
 
     @Override
-    public UserEntity update(UserEntity user) {
+    public @Nonnull UserEntity update(UserEntity user) {
         try (PreparedStatement usersPs = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
                 """
                           UPDATE "user"
@@ -101,7 +103,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
 
 
     @Override
-    public Optional<UserEntity> findById(UUID id) {
+    public @Nonnull Optional<UserEntity> findById(UUID id) {
         try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
                 "SELECT * FROM \"user\"  WHERE id = ?"
         )) {
@@ -123,7 +125,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     }
 
     @Override
-    public Optional<UserEntity> findByUsername(String username) {
+    public @Nonnull Optional<UserEntity> findByUsername(String username) {
         try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
                 "SELECT * FROM \"user\"  WHERE username = ?"
         )) {
@@ -144,7 +146,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     }
 
     @Override
-    public List<UserEntity> findAll() {
+    public @Nonnull List<UserEntity> findAll() {
         List<UserEntity> userEntities = new ArrayList<>();
         try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
                 "SELECT * FROM \"user\" "
@@ -176,8 +178,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     }
 
 
-    @NotNull
-    private UserEntity map(ResultSet rs) throws SQLException {
+    private @Nonnull UserEntity map(ResultSet rs) throws SQLException {
         UserEntity userEntity = new UserEntity();
         userEntity.setId(rs.getObject("id", UUID.class));
         userEntity.setUsername(rs.getString("username"));
