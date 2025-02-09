@@ -7,15 +7,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Optional;
 
+import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.SetValueOptions.withDate;
 
-public class Calendar {
+public class Calendar extends BaseComponent<Calendar> {
 
+    private static final String MUI_PICKERS_LAYOUT_ROOT = ".MuiPickersLayout-root";
     private static final String DATE_INPUT = "input[name='date']";
-    private final SelenideElement self;
 
-    public Calendar(SelenideElement self) {
-        this.self = self;
+    public Calendar() {
+        super($(MUI_PICKERS_LAYOUT_ROOT));
     }
 
     public Calendar selectDate(Date date) {

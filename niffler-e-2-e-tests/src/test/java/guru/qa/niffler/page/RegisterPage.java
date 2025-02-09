@@ -9,7 +9,8 @@ import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class RegisterPage {
+public class RegisterPage extends BasePage<RegisterPage> {
+    private static final Config CFG = Config.getInstance();
     private final SelenideElement usernameInput = $("input[name='username']");
     private final SelenideElement passwordInput = $("input[name='password']");
     private final SelenideElement passwordSubmitInput = $("input[name='passwordSubmit']");
@@ -17,7 +18,14 @@ public class RegisterPage {
     private final SelenideElement successText = $(".form__paragraph_success");
     private final SelenideElement errorText = $(".form__error");
 
-    private static final Config CFG = Config.getInstance();
+    public static RegisterPage register(String username, String password, String passwordSubmit) {
+        return Selenide.open(CFG.frontUrl(), LoginPage.class)
+                .openRegistrationPage()
+                .setUsername(username)
+                .setPassword(password)
+                .setPasswordSubmit(passwordSubmit)
+                .submitRegistration();
+    }
 
     public RegisterPage setUsername(String username) {
         usernameInput.clear();
@@ -56,14 +64,5 @@ public class RegisterPage {
         errorText.should(visible);
         String expected = "Passwords should be equal";
         errorText.shouldHave(text(expected));
-    }
-
-    public static RegisterPage register(String username, String password, String passwordSubmit) {
-        return Selenide.open(CFG.frontUrl(), LoginPage.class)
-                .openRegistrationPage()
-                .setUsername(username)
-                .setPassword(password)
-                .setPasswordSubmit(passwordSubmit)
-                .submitRegistration();
     }
 }

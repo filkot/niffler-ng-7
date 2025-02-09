@@ -47,6 +47,7 @@ public class FriendsWebTest {
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(user.username(), user.password())
                 .openAllPeoplePage()
+                .peopleTable()
                 .shouldSeeOutcomeInvitationInAllPeoplesTable(user.outcome());
     }
 }

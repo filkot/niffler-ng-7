@@ -12,21 +12,21 @@ public interface SpendApi {
     @POST("internal/spends/add")
     Call<SpendJson> addSpend(@Body SpendJson spend);
 
-    @PATCH("/internal/spends/edit")
+    @PATCH("internal/spends/edit")
     Call<SpendJson> editSpend(@Body SpendJson spend);
 
-    @GET("/internal/spends/{id}")
+    @GET("internal/spends/{id}")
     Call<SpendJson> getSpend(@Path("id") String id,
                              @Query("username") String username);
 
-    @GET("/internal/spends/all")
+    @GET("internal/spends/all")
     Call<List<SpendJson>> getSpends(@Query("username") String username,
                                     @Query("currency") CurrencyValues currency,
                                     @Query("from") String from,
                                     @Query("to") String to);
 
 
-    @DELETE("/internal/spends/remove")
+    @DELETE("internal/spends/remove")
     Call<Void> deleteSpends(@Query("username") String username,
                             @Query("ids") List<String> ids);
 

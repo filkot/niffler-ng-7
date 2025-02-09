@@ -5,7 +5,7 @@ import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.platform.commons.support.AnnotationSupport;
 import org.junit.platform.commons.support.SearchOption;
-import guru.qa.niffler.api.GhApiClient;
+import guru.qa.niffler.api.gh.GhApiClient;
 import guru.qa.niffler.jupiter.annotation.DisableByIssue;
 
 public class IssueExtension implements ExecutionCondition {

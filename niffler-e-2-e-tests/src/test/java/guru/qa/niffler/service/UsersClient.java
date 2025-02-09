@@ -1,8 +1,17 @@
 package guru.qa.niffler.service;
 
 import guru.qa.niffler.model.UserJson;
+import guru.qa.niffler.service.impl.UsersApiClient;
+import guru.qa.niffler.service.impl.UsersDbClient;
 
 public interface UsersClient {
+
+    static UsersClient getInstance() {
+        return "api".equals(System.getProperty("client.impl"))
+                ? new UsersApiClient()
+                : new UsersDbClient();
+    }
+
     UserJson createUser(String username, String password);
 
     void createIncomeInvitations(UserJson targetUser, int count);

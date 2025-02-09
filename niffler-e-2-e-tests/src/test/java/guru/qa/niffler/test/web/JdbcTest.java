@@ -1,7 +1,7 @@
 package guru.qa.niffler.test.web;
 
 import guru.qa.niffler.model.UserJson;
-import guru.qa.niffler.service.impl.UsersAPIClient;
+import guru.qa.niffler.service.impl.UsersApiClient;
 import guru.qa.niffler.service.impl.UsersDbClient;
 import guru.qa.niffler.utils.RandomDataUtils;
 import org.junit.jupiter.api.Test;
@@ -12,7 +12,7 @@ public class JdbcTest {
 
     private static final UsersDbClient usersDbClient = new UsersDbClient();
 
-    private static final UsersAPIClient usersAPIClient = new UsersAPIClient();
+    private static final UsersApiClient usersAPIClient = new UsersApiClient();
 
     @Test
     public void successfulTaTxTest() {
