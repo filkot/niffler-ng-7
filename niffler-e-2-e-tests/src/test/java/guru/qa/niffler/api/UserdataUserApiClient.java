@@ -8,6 +8,7 @@ import guru.qa.niffler.config.Config;
 import guru.qa.niffler.model.TestData;
 import guru.qa.niffler.model.UserJson;
 import guru.qa.niffler.service.RestClient;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hc.core5.http.HttpStatus;
 import retrofit2.Response;
 
@@ -18,8 +19,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ParametersAreNonnullByDefault
@@ -43,15 +44,26 @@ public class UserdataUserApiClient {
                     password,
                     ThreadSafeCookieStore.INSTANCE.cookieValue("XSRF-TOKEN")
             ).execute();
-            UserJson createdUser = requireNonNull(userApiUserdata.getUser(username).execute().body());
-            return createdUser.addTestData(
-                    new TestData(defaultPassword,
-                            new ArrayList<>(),
-                            new ArrayList<>(),
-                            new ArrayList<>(),
-                            new ArrayList<>(),
-                            new ArrayList<>()));
-        } catch (IOException e) {
+
+            StopWatch sw = StopWatch.createStarted();
+            while (sw.getTime(TimeUnit.MILLISECONDS) < 30) {
+                UserJson createdUser = userApiUserdata.getUser(username).execute().body();
+
+                if (createdUser != null && createdUser.id() != null) {
+                    return createdUser.addTestData(
+                            new TestData(defaultPassword,
+                                    new ArrayList<>(),
+                                    new ArrayList<>(),
+                                    new ArrayList<>(),
+                                    new ArrayList<>(),
+                                    new ArrayList<>()));
+                } else {
+                    Thread.sleep(100);
+                }
+            }
+            throw new RuntimeException("Юзер не создался через API");
+
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
