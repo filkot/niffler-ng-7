@@ -53,6 +53,6 @@ public class SpendingWebTest {
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(user.username(), user.testData().password())
                 .spendingTable()
-                .checkTableContainsSpending("Обучение Advanced 2.0");
+                .checkTableContainsSpending(user.testData().spends().getFirst().description());
     }
 }
