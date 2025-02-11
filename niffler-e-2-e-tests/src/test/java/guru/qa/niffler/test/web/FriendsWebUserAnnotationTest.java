@@ -66,8 +66,10 @@ public class FriendsWebUserAnnotationTest {
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(user.username(), user.testData().password())
                 .openAllPeoplePage()
+                .peopleTable()
                 .shouldSeeOutcomeInvitationInAllPeoplesTable(
-                        user.testData().outcomeInvitations().getFirst().username());
+                        user.testData().outcomeInvitations().getFirst().username())
+        ;
     }
 
     @User(
@@ -77,10 +79,12 @@ public class FriendsWebUserAnnotationTest {
     )
     @Test
     void shouldBeAbleToAcceptFriendRequest(UserJson user) {
+        String username = user.testData().incomeInvitations().getFirst().username();
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(user.username(), user.testData().password())
                 .openFriendsPage()
                 .acceptFriendInvitation()
+                .checkAlertMessage("Invitation of " + username + " accepted")
                 .checkAmountOfFriends(1);
     }
 
@@ -91,10 +95,12 @@ public class FriendsWebUserAnnotationTest {
     )
     @Test
     void shouldBeAbleToDeclineFriendRequest(UserJson user) {
+        String username = user.testData().incomeInvitations().getFirst().username();
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(user.username(), user.testData().password())
                 .openFriendsPage()
                 .declineFriendInvitation()
+                .checkAlertMessage("Invitation of " + username + " is declined")
                 .checkAmountOfFriends(0);
     }
 }

@@ -14,7 +14,7 @@ public interface CategoryApi {
     @PATCH("internal/categories/update")
     Call<CategoryJson> updateCategory(@Body CategoryJson category);
 
-    @GET("/internal/categories/all")
+    @GET("internal/categories/all")
     Call<List<CategoryJson>> getCategories(@Query("username") String username,
                                            @Query("excludeArchived") boolean excludeArchived);
 

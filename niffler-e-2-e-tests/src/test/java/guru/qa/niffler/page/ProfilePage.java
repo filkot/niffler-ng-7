@@ -9,7 +9,7 @@ import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
-public class ProfilePage {
+public class ProfilePage extends BasePage<ProfilePage> {
 
     public static final String URL = Config.getInstance().frontUrl() + "profile";
 

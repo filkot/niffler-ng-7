@@ -1,35 +1,31 @@
-package guru.qa.niffler.api;
+package guru.qa.niffler.api.gh;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
-import guru.qa.niffler.config.Config;
-import okhttp3.OkHttpClient;
+import guru.qa.niffler.service.RestClient;
 import org.apache.hc.core5.http.HttpStatus;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class GhApiClient {
+@ParametersAreNonnullByDefault
+public class GhApiClient extends RestClient {
 
     private static final String GH_TOKEN_ENV = "GITHUB_TOKEN";
 
-    private final OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
+    private final GhApi ghApi;
 
-    private final Retrofit retrofit = new Retrofit.Builder()
-            .client(okHttpClient)
-            .baseUrl(Config.getInstance().ghUrl())
-            .addConverterFactory(JacksonConverterFactory.create())
-            .build();
+    public GhApiClient() {
+        super(CFG.ghUrl());
+        this.ghApi = retrofit.create(GhApi.class);
+    }
 
-    private final GhApi ghApi = retrofit.create(GhApi.class);
-
-    public @Nonnull String issueState(@Nonnull String issueNumber) {
+    public @Nonnull String issueState(String issueNumber) {
         final Response<JsonNode> response;
         try {
             response = ghApi.issue(

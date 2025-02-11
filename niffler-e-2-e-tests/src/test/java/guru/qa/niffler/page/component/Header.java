@@ -7,9 +7,8 @@ import io.qameta.allure.Step;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
 
-public class Header {
+public class Header extends BaseComponent<Header>{
 
-    private final SelenideElement self = $("#root header");
     private final SelenideElement menuBtn = self.find("button");
     private final SelenideElement headerMenu = $("ul[role='menu']");
     private final SelenideElement profileBtn = headerMenu.findAll("li").find(text("Profile"));
@@ -18,6 +17,10 @@ public class Header {
     private final SelenideElement signOutBtn = headerMenu.findAll("li").find(text("Sign out"));
     private final SelenideElement addSpendingLnk = self.find("a[href='/spending']");
     private final SelenideElement mainPageLnk = self.find("a[href='/main']");
+
+    public Header() {
+        super($("#root header"));
+    }
 
     @Step("Открываем страницу Profile")
     public ProfilePage goToProfilePage() {

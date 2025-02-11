@@ -10,12 +10,12 @@ import static com.codeborne.selenide.Selenide.$$;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class EditSpendingPage {
+public class EditSpendingPage extends BasePage<EditSpendingPage> {
     private final SelenideElement descriptionInput = $("#description");
     private final SelenideElement saveBtn = $("#save");
     private final ElementsCollection categoryList = $$(By.xpath("//li//span"));
 
-    private final Calendar calendar = new Calendar($(".MuiDateCalendar-root"));
+    private final Calendar calendar = new Calendar();
 
     public EditSpendingPage setNewSpendingDescription(String description) {
         descriptionInput.clear();
@@ -23,10 +23,10 @@ public class EditSpendingPage {
         return this;
     }
 
-    public void save() {
+    public EditSpendingPage save() {
         saveBtn.click();
+        return this;
     }
-
 
     public void shouldNotSeeArchivedCategoryInCategoryList(String category) {
         assertFalse(categoryList.stream().anyMatch(e -> e.text().equals(category)));

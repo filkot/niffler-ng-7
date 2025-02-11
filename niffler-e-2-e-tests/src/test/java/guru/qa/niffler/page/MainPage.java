@@ -2,15 +2,13 @@ package guru.qa.niffler.page;
 
 import com.codeborne.selenide.SelenideElement;
 import guru.qa.niffler.page.component.Header;
-import guru.qa.niffler.page.component.SearchField;
 import guru.qa.niffler.page.component.SpendingTable;
 
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
-public class MainPage {
+public class MainPage extends BasePage<MainPage> {
 
-    private final SearchField searchField = new SearchField();
     private final Header header = new Header();
     private final SpendingTable spendings = new SpendingTable();
 

@@ -1,18 +1,16 @@
 package guru.qa.niffler.test.web;
 
+import guru.qa.niffler.jupiter.extension.UsersClientExtension;
 import guru.qa.niffler.model.UserJson;
-import guru.qa.niffler.service.impl.UsersAPIClient;
-import guru.qa.niffler.service.impl.UsersDbClient;
+import guru.qa.niffler.service.UsersClient;
 import guru.qa.niffler.utils.RandomDataUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-
+@ExtendWith(UsersClientExtension.class)
 public class JdbcTest {
 
-
-    private static final UsersDbClient usersDbClient = new UsersDbClient();
-
-    private static final UsersAPIClient usersAPIClient = new UsersAPIClient();
+    private UsersClient usersClient;
 
     @Test
     public void successfulTaTxTest() {
@@ -20,9 +18,9 @@ public class JdbcTest {
         String password = "12345";
         System.out.println("!!!!!!!! username = " + username);
 
-        UserJson user = usersDbClient.createUser(username, password);
-        usersDbClient.createIncomeInvitations(user, 1);
-        usersDbClient.createOutcomeInvitations(user, 1);
+        UserJson user = usersClient.createUser(username, password);
+        usersClient.createIncomeInvitations(user, 1);
+        usersClient.createOutcomeInvitations(user, 1);
 
         System.out.println("!!!!!!!! " + user);
 
@@ -34,7 +32,7 @@ public class JdbcTest {
         String password = "12345";
         System.out.println("!!!!!!!! username = " + username);
 
-        UserJson user = usersAPIClient.createUser(username, password);
+        UserJson user = usersClient.createUser(username, password);
 
         System.out.println("!!!!!!!! " + user);
 

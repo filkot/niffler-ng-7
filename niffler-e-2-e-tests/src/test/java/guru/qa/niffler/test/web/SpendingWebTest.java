@@ -34,7 +34,8 @@ public class SpendingWebTest {
                 .login("filkot", "12345")
                 .editSpending(spend.description())
                 .setNewSpendingDescription(newDescription)
-                .save();
+                .save()
+                .checkAlertMessage("Spending is edited successfully");
 
         new MainPage().checkThatTableContainsSpending(newDescription);
     }

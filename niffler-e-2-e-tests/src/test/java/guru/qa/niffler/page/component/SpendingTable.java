@@ -10,19 +10,23 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.codeborne.selenide.CollectionCondition.size;
-import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class SpendingTable {
+public class SpendingTable extends BaseComponent<SpendingTable>{
 
-    private final SelenideElement self = $("#spendings tbody");
     private final ElementsCollection tableRows = self.$$("tr");
     private final SelenideElement periodInput = $("#period");
     private final ElementsCollection dropdownList = $$("ul[role=listbox]");
     private final SelenideElement deleteBtn = $("#delete");
     private final SearchField searchField = new SearchField();
+
+    public SpendingTable() {
+        super($("#spendings tbody"));
+    }
 
     @Step("Выбираем период {period} в таблице трат")
     public SpendingTable selectPeriod(DataFilterValues period) {

@@ -1,22 +1,20 @@
 package guru.qa.niffler.service.impl;
 
-import guru.qa.niffler.api.user.UserApiClient;
-import guru.qa.niffler.config.Config;
+import guru.qa.niffler.api.UserdataUserApiClient;
 import guru.qa.niffler.model.UserJson;
 import guru.qa.niffler.service.UsersClient;
 
 import static guru.qa.niffler.utils.RandomDataUtils.getRandomUsername;
 
 
-public class UsersAPIClient implements UsersClient {
-    private static final Config CFG = Config.getInstance();
+public class UsersApiClient implements UsersClient {
+    private static final String defaultPassword = "12345";
 
-    private final UserApiClient userApiClient = new UserApiClient();
+    private final UserdataUserApiClient userApiClient = new UserdataUserApiClient();
 
     @Override
     public UserJson createUser(String username, String password) {
-        String user = userApiClient.createUser(username, password);
-        return null;
+        return userApiClient.createUser(username, password);
     }
 
     @Override
@@ -24,9 +22,8 @@ public class UsersAPIClient implements UsersClient {
         if (count > 0) {
             for (int i = 0; i < count; i++) {
                 String username = getRandomUsername();
-                String password = "12345";
 
-                createUser(username, password);
+                createUser(username, defaultPassword);
 
                 userApiClient.sendInvitation(targetUser.username(), username);
             }
@@ -38,9 +35,8 @@ public class UsersAPIClient implements UsersClient {
         if (count > 0) {
             for (int i = 0; i < count; i++) {
                 String username = getRandomUsername();
-                String password = "12345";
 
-                createUser(username, password);
+                createUser(username, defaultPassword);
 
                 userApiClient.sendInvitation(username, targetUser.username());
             }
@@ -52,9 +48,8 @@ public class UsersAPIClient implements UsersClient {
         if (count > 0) {
             for (int i = 0; i < count; i++) {
                 String username = getRandomUsername();
-                String password = "12345";
 
-                createUser(username, password);
+                createUser(username, defaultPassword);
                 userApiClient.sendInvitation(username, targetUser.username());
                 userApiClient.sendInvitation(targetUser.username(), username);
                 userApiClient.acceptInvitation(username, targetUser.username());
@@ -79,7 +74,6 @@ public class UsersAPIClient implements UsersClient {
     @Override
     public void createOutcomeInvitation(UserJson requester, UserJson addressee) {
         userApiClient.sendInvitation(addressee.username(), requester.username());
-
     }
 
 
