@@ -49,7 +49,7 @@ public enum ThreadSafeCookieStore implements CookieStore {
     }
 
 
-    public String cookieValue(String name){
+    public String cookieValue(String name) {
         return getCookies().stream()
                 .filter(c -> c.getName().equals(name))
                 .map(HttpCookie::getValue)

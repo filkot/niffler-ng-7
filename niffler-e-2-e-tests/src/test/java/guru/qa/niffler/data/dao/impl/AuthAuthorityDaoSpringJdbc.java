@@ -3,8 +3,8 @@ package guru.qa.niffler.data.dao.impl;
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.AuthAuthorityDao;
 import guru.qa.niffler.data.entity.auth.AuthorityEntity;
+import guru.qa.niffler.data.jdbc.DataSources;
 import guru.qa.niffler.data.mapper.AuthorityEntityRowMapper;
-import guru.qa.niffler.data.tpl.DataSources;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -19,12 +19,13 @@ import java.util.UUID;
 public class AuthAuthorityDaoSpringJdbc implements AuthAuthorityDao {
 
     private static final Config CFG = Config.getInstance();
+    private final String url = CFG.authJdbcUrl();
 
     @Override
     public void create(AuthorityEntity... authority) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(url));
         jdbcTemplate.batchUpdate(
-                "INSERT INTO authority (user_id, authority) VALUES (?, ?)",
+                "INSERT INTO authority (user_id, authority) VALUES (? , ?)",
                 new BatchPreparedStatementSetter() {
                     @Override
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -40,30 +41,24 @@ public class AuthAuthorityDaoSpringJdbc implements AuthAuthorityDao {
         );
     }
 
+    @Nonnull
     @Override
-    public @Nonnull List<AuthorityEntity> findAll() {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
+    public List<AuthorityEntity> findAll() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(url));
         return jdbcTemplate.query(
                 "SELECT * FROM authority",
-                AuthorityEntityRowMapper.instance);
+                AuthorityEntityRowMapper.instance
+        );
     }
 
+    @Nonnull
     @Override
-    public @Nonnull List<AuthorityEntity> findAllByUserId(UUID userId) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
+    public List<AuthorityEntity> findAllByUserId(UUID userId) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(url));
         return jdbcTemplate.query(
                 "SELECT * FROM authority where user_id = ?",
                 AuthorityEntityRowMapper.instance,
                 userId
         );
     }
-
-    @Override
-    public void remove(AuthorityEntity authorityEntity) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
-        jdbcTemplate.update("DELETE FROM authority WHERE user_id = ?",
-                ps ->
-                        ps.setObject(1, authorityEntity.getUser().getId()));
-    }
-
 }

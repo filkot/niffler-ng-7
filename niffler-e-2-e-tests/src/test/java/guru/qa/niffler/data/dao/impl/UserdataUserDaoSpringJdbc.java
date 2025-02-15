@@ -3,8 +3,8 @@ package guru.qa.niffler.data.dao.impl;
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.UserdataUserDao;
 import guru.qa.niffler.data.entity.userdata.UserEntity;
+import guru.qa.niffler.data.jdbc.DataSources;
 import guru.qa.niffler.data.mapper.UserdataUserEntityRowMapper;
-import guru.qa.niffler.data.tpl.DataSources;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,6 +15,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,30 +24,29 @@ import java.util.UUID;
 public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
 
     private static final Config CFG = Config.getInstance();
+    private final String url = CFG.userdataJdbcUrl();
 
+    @Nonnull
     @Override
-    public @Nonnull UserEntity create(UserEntity user) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
+    public UserEntity create(UserEntity user) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(url));
         KeyHolder kh = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO \"user\" (username, currency, firstname, surname, full_name, photo, photo_small)" +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    PreparedStatement.RETURN_GENERATED_KEYS
+                    """
+                            INSERT INTO "user" (username, currency, firstname, surname, photo, photo_small, full_name)
+                            VALUES (?, ?, ?, ?, ?, ?, ?)
+                            """,
+                    Statement.RETURN_GENERATED_KEYS
             );
             ps.setString(1, user.getUsername());
-            //во время использования ChainedTransactionManager передаем null вместо username в UdUser чтобы
-            // воспроизвести не возможность отката транзакции
-//            ps.setString(1, null);
             ps.setString(2, user.getCurrency().name());
             ps.setString(3, user.getFirstname());
             ps.setString(4, user.getSurname());
-            ps.setString(5, user.getFullname());
-            ps.setBytes(6, user.getPhoto());
-            ps.setBytes(7, user.getPhotoSmall());
-
+            ps.setBytes(5, user.getPhoto());
+            ps.setBytes(6, user.getPhotoSmall());
+            ps.setString(7, user.getFullname());
             return ps;
-
         }, kh);
 
         final UUID generatedKey = (UUID) kh.getKeys().get("id");
@@ -54,9 +54,10 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
         return user;
     }
 
+    @Nonnull
     @Override
-    public @Nonnull UserEntity update(UserEntity user) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
+    public UserEntity update(UserEntity user) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(url));
         jdbcTemplate.update("""
                                       UPDATE "user"
                                         SET currency    = ?,
@@ -96,15 +97,38 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
         return user;
     }
 
+    @Nonnull
     @Override
-    public @Nonnull Optional<UserEntity> findById(UUID id) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
+    public Optional<UserEntity> findById(UUID id) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(url));
         try {
             return Optional.ofNullable(
                     jdbcTemplate.queryForObject(
-                            "SELECT * FROM \"user\" WHERE id = ?",
+                            """
+                                       SELECT * FROM "user" WHERE id = ?
+                                    """,
                             UserdataUserEntityRowMapper.instance,
                             id
+                    )
+            );
+        } catch (
+                EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Nonnull
+    @Override
+    public Optional<UserEntity> findByUsername(String username) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(url));
+        try {
+            return Optional.ofNullable(
+                    jdbcTemplate.queryForObject(
+                            """
+                                       SELECT * FROM "user" WHERE username = ?
+                                    """,
+                            UserdataUserEntityRowMapper.instance,
+                            username
                     )
             );
         } catch (EmptyResultDataAccessException e) {
@@ -112,37 +136,15 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
         }
     }
 
+    @Nonnull
     @Override
-    public @Nonnull Optional<UserEntity> findByUsername(String username) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
-        return Optional.ofNullable(
-                jdbcTemplate.queryForObject(
-                        "SELECT * FROM \"user\" WHERE username = ?",
-                        UserdataUserEntityRowMapper.instance,
-                        username
-                )
-        );
-    }
-
-    @Override
-    public @Nonnull List<UserEntity> findAll() {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
+    public List<UserEntity> findAll() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(url));
         return jdbcTemplate.query(
-                "SELECT * FROM \"user\"",
+                """
+                            SELECT * FROM "user"
+                        """,
                 UserdataUserEntityRowMapper.instance
-        );
-    }
-
-    @Override
-    public void delete(UserEntity user) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
-        jdbcTemplate.update(con -> {
-                    PreparedStatement ps = con.prepareStatement(
-                            "DELETE FROM \"user\" WHERE username = ?"
-                    );
-                    ps.setString(1, user.getUsername());
-                    return ps;
-                }
         );
     }
 }

@@ -1,5 +1,6 @@
 package guru.qa.niffler.page.component;
 
+import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import guru.qa.niffler.page.*;
 import io.qameta.allure.Step;
@@ -13,63 +14,58 @@ import static com.codeborne.selenide.Selenide.$;
 @ParametersAreNonnullByDefault
 public class Header extends BaseComponent<Header> {
 
-    private final SelenideElement menuBtn = self.find("button");
-    private final SelenideElement headerMenu = $("ul[role='menu']");
-    private final SelenideElement profileBtn = headerMenu.findAll("li").find(text("Profile"));
-    private final SelenideElement friendsBtn = headerMenu.findAll("li").find(text("Friends"));
-    private final SelenideElement allPeopleBtn = headerMenu.findAll("li").find(text("All People"));
-    private final SelenideElement signOutBtn = headerMenu.findAll("li").find(text("Sign out"));
-    private final SelenideElement addSpendingLnk = self.find("a[href='/spending']");
-    private final SelenideElement mainPageLnk = self.find("a[href='/main']");
-
+    private final SelenideElement mainPageLink = self.$("a[href*='/main']");
+    private final SelenideElement addSpendingBtn = self.$("a[href*='/spending']");
+    private final SelenideElement menuBtn = self.$("button");
+    private final SelenideElement menu = $("ul[role='menu']");
+    private final ElementsCollection menuItems = menu.$$("li");
     public Header() {
         super($("#root header"));
     }
 
-    @Step("Открываем страницу Profile")
+    @Step("Open Friends page")
     @Nonnull
-    public ProfilePage goToProfilePage() {
-        openMenuAndClick(profileBtn);
-        return new ProfilePage();
-    }
-
-    @Step("Открываем страницу Friends")
-    @Nonnull
-    public FriendsPage goToFriendsPage() {
-        openMenuAndClick(friendsBtn);
+    public FriendsPage toFriendsPage() {
+        menuBtn.click();
+        menuItems.find(text("Friends")).click();
         return new FriendsPage();
     }
 
-    @Step("Открываем страницу All People")
+    @Step("Open All Peoples page")
     @Nonnull
-    public AllPeoplePage goToAllPeoplePage() {
-        openMenuAndClick(allPeopleBtn);
-        return new AllPeoplePage();
+    public PeoplePage toAllPeoplesPage() {
+        menuBtn.click();
+        menuItems.find(text("All People")).click();
+        return new PeoplePage();
     }
 
-    @Step("Делаем Log out")
+    @Step("Open Profile page")
+    @Nonnull
+    public ProfilePage toProfilePage() {
+        menuBtn.click();
+        menuItems.find(text("Profile")).click();
+        return new ProfilePage();
+    }
+
+    @Step("Sign out")
     @Nonnull
     public LoginPage signOut() {
-        openMenuAndClick(signOutBtn);
+        menuBtn.click();
+        menuItems.find(text("Sign out")).click();
         return new LoginPage();
     }
 
-    @Step("Добавляем новый Spending")
+    @Step("Add new spending")
     @Nonnull
-    public EditSpendingPage addSpending() {
-        addSpendingLnk.click();
+    public EditSpendingPage addSpendingPage() {
+        addSpendingBtn.click();
         return new EditSpendingPage();
     }
 
-    @Step("Открываем главную страницу")
+    @Step("Go to main page")
     @Nonnull
-    public MainPage goToMainPage() {
-        mainPageLnk.click();
+    public MainPage toMainPage() {
+        mainPageLink.click();
         return new MainPage();
-    }
-
-    private void openMenuAndClick(SelenideElement element) {
-        menuBtn.click();
-        element.click();
     }
 }

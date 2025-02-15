@@ -1,19 +1,11 @@
 package guru.qa.niffler.jupiter.extension;
 
-import guru.qa.niffler.jupiter.annotation.Friend;
-import guru.qa.niffler.jupiter.annotation.IncomeInvitation;
-import guru.qa.niffler.jupiter.annotation.OutcomeInvitation;
 import guru.qa.niffler.jupiter.annotation.User;
-import guru.qa.niffler.model.TestData;
-import guru.qa.niffler.model.UserJson;
+import guru.qa.niffler.model.rest.UserJson;
 import guru.qa.niffler.service.UsersClient;
-import guru.qa.niffler.service.impl.UsersDbClient;
 import guru.qa.niffler.utils.RandomDataUtils;
 import org.junit.jupiter.api.extension.*;
 import org.junit.platform.commons.support.AnnotationSupport;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class UserExtension implements BeforeEachCallback,
         ParameterResolver {
@@ -27,58 +19,19 @@ public class UserExtension implements BeforeEachCallback,
     public void beforeEach(ExtensionContext context) throws Exception {
         AnnotationSupport.findAnnotation(context.getRequiredTestMethod(), User.class)
                 .ifPresent(userAnno -> {
-                            if ("".equals(userAnno.username())) {
-                                final String username = RandomDataUtils.getRandomUsername();
+                    if ("".equals(userAnno.username())) {
+                        final String username = RandomDataUtils.randomUsername();
+                        UserJson user = usersClient.createUser(username, defaultPassword);
+                        usersClient.addIncomeInvitation(user, userAnno.incomeInvitations());
+                        usersClient.addOutcomeInvitation(user, userAnno.outcomeInvitations());
+                        usersClient.addFriend(user, userAnno.friends());
 
-                                UserJson user = usersClient.createUser(username, defaultPassword);
-
-                                List<UserJson> friends = new ArrayList<>();
-                                for (Friend friend : userAnno.friends()) {
-                                    if("".equals(friend.username())){
-                                        final String usernameFriend = RandomDataUtils.getRandomUsername();
-                                        UserJson userFriend = usersClient.createUser(usernameFriend, defaultPassword);
-                                        usersClient.createFriend(user , userFriend);
-                                        friends.add(userFriend);
-                                    }
-                                }
-
-                                List<UserJson> incomeInvitations = new ArrayList<>();
-                                for (IncomeInvitation incomeInvitation : userAnno.incomeInvitations()) {
-                                    if("".equals(incomeInvitation.username())){
-                                        final String usernameIncomeInvitation = RandomDataUtils.getRandomUsername();
-                                        UserJson userIncomeInvitation = usersClient.createUser(usernameIncomeInvitation, defaultPassword);
-                                        usersClient.createIncomeInvitation(user , userIncomeInvitation);
-                                        incomeInvitations.add(userIncomeInvitation);
-                                    }
-                                }
-
-                                List<UserJson> outcomeInvitations = new ArrayList<>();
-                                for (OutcomeInvitation outcomeInvitation : userAnno.outcomeInvitations()) {
-                                    if("".equals(outcomeInvitation.username())){
-                                        final String usernameOutcomeInvitation = RandomDataUtils.getRandomUsername();
-                                        UserJson userOutcomeInvitation = usersClient.createUser(usernameOutcomeInvitation, defaultPassword);
-                                        usersClient.createOutcomeInvitation(user , userOutcomeInvitation);
-                                        outcomeInvitations.add(userOutcomeInvitation);
-                                    }
-                                }
-
-                                user = user.addTestData(
-                                        new TestData(defaultPassword,
-                                                new ArrayList<>(),
-                                                new ArrayList<>(),
-                                                incomeInvitations,
-                                                outcomeInvitations,
-                                                friends));
-
-                                context.getStore(NAMESPACE).put(
-                                        context.getUniqueId(),
-                                        user
-                                );
-                            }
-                        }
-                );
-
-
+                        context.getStore(NAMESPACE).put(
+                                context.getUniqueId(),
+                                user
+                        );
+                    }
+                });
     }
 
     @Override

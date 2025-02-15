@@ -17,47 +17,36 @@ import static guru.qa.niffler.data.jpa.EntityManagers.em;
 public class AuthUserRepositoryHibernate implements AuthUserRepository {
 
     private static final Config CFG = Config.getInstance();
+
     private final EntityManager entityManager = em(CFG.authJdbcUrl());
 
-
+    @Nonnull
     @Override
-    public @Nonnull AuthUserEntity create(AuthUserEntity user) {
+    public AuthUserEntity create(AuthUserEntity user) {
         entityManager.joinTransaction();
         entityManager.persist(user);
         return user;
     }
 
+    @Nonnull
     @Override
-    public @Nonnull AuthUserEntity update(AuthUserEntity user) {
-        entityManager.joinTransaction();
-        entityManager.merge(user);
-        return user;
-    }
-
-    @Override
-    public @Nonnull Optional<AuthUserEntity> findById(UUID id) {
+    public Optional<AuthUserEntity> findById(UUID id) {
         return Optional.ofNullable(
                 entityManager.find(AuthUserEntity.class, id)
         );
     }
 
+    @Nonnull
     @Override
-    public @Nonnull Optional<AuthUserEntity> findByUsername(String username) {
+    public Optional<AuthUserEntity> findByUsername(String username) {
         try {
-            return Optional.of(entityManager
-                    .createQuery("select u from AuthUserEntity u where u.username =: username",
-                            AuthUserEntity.class)
-                    .setParameter("username", username)
-                    .getSingleResult());
+            return Optional.of(
+                    entityManager.createQuery("select u from AuthUserEntity u where u.username =: username", AuthUserEntity.class)
+                            .setParameter("username", username)
+                            .getSingleResult()
+            );
         } catch (NoResultException e) {
             return Optional.empty();
         }
     }
-
-    @Override
-    public void remove(AuthUserEntity user) {
-        entityManager.joinTransaction();
-        entityManager.remove(user);
-    }
-
 }

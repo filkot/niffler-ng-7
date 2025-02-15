@@ -14,44 +14,43 @@ import java.util.UUID;
 @ParametersAreNonnullByDefault
 public class UserdataUserRepositorySpringJdbc implements UserdataUserRepository {
 
-    private final UserdataUserDao userDaoSpringJdbc = new UserdataUserDaoSpringJdbc();
+    private final UserdataUserDao userdataUserDao = new UserdataUserDaoSpringJdbc();
 
+    @Nonnull
     @Override
-    public @Nonnull UserEntity create(UserEntity user) {
-        return userDaoSpringJdbc.create(user);
+    public UserEntity create(UserEntity user) {
+        return userdataUserDao.create(user);
+    }
+
+    @Nonnull
+    @Override
+    public UserEntity update(UserEntity user) {
+        return userdataUserDao.update(user);
+    }
+
+    @Nonnull
+    @Override
+    public Optional<UserEntity> findById(UUID id) {
+        return userdataUserDao.findById(id);
+    }
+
+    @Nonnull
+    @Override
+    public Optional<UserEntity> findByUsername(String username) {
+        return userdataUserDao.findByUsername(username);
     }
 
     @Override
-    public @Nonnull Optional<UserEntity> findById(UUID id) {
-        return userDaoSpringJdbc.findById(id);
-    }
-
-    @Override
-    public @Nonnull Optional<UserEntity> findByUsername(String username) {
-        return userDaoSpringJdbc.findByUsername(username);
-    }
-
-    @Override
-    public @Nonnull UserEntity update(UserEntity user) {
-        return userDaoSpringJdbc.update(user);
-    }
-
-    @Override
-    public void sendInvitation(UserEntity requester, UserEntity addressee) {
+    public void addFriendshipRequest(UserEntity requester, UserEntity addressee) {
         requester.addFriends(FriendshipStatus.PENDING, addressee);
-        userDaoSpringJdbc.update(requester);
+        userdataUserDao.update(requester);
     }
 
     @Override
     public void addFriend(UserEntity requester, UserEntity addressee) {
         requester.addFriends(FriendshipStatus.ACCEPTED, addressee);
         addressee.addFriends(FriendshipStatus.ACCEPTED, requester);
-        userDaoSpringJdbc.update(requester);
-        userDaoSpringJdbc.update(addressee);
-    }
-
-    @Override
-    public void remove(UserEntity user) {
-        userDaoSpringJdbc.delete(user);
+        userdataUserDao.update(requester);
+        userdataUserDao.update(addressee);
     }
 }

@@ -10,7 +10,7 @@ public abstract class BaseComponent<T extends BaseComponent<?>> {
 
     protected final SelenideElement self;
 
-    public BaseComponent(SelenideElement self) {
+    protected BaseComponent(SelenideElement self) {
         this.self = self;
     }
 

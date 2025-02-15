@@ -18,28 +18,57 @@ public class LoginPage extends BasePage<LoginPage> {
     private final SelenideElement usernameInput = $("input[name='username']");
     private final SelenideElement passwordInput = $("input[name='password']");
     private final SelenideElement submitButton = $("button[type='submit']");
-    private final SelenideElement registerLink = $(".form__register");
-    private final SelenideElement errorText = $(".form__error-container");
-
-
-    @Step("Заполняем username: {username} password: {password} и жмем Log in")
-    @Nonnull
-    public MainPage login(String username, String password) {
-        usernameInput.setValue(username);
-        passwordInput.setValue(password);
-        submitButton.click();
-        return new MainPage();
-    }
+    private final SelenideElement registerButton = $("a[href='/register']");
+    private final SelenideElement errorContainer = $(".form__error");
 
     @Nonnull
-    public RegisterPage openRegistrationPage() {
-        registerLink.click();
+    public RegisterPage doRegister() {
+        registerButton.click();
         return new RegisterPage();
     }
 
-    @Step("Проверка сообщении об ошибке с текстом {error}")
-    public void shouldSeeErrorWithBadCredentialsText(String errorMessage) {
-        errorText.should(visible);
-        errorText.shouldHave(text(errorMessage));
+    @Step("Fill login page with credentials: username: '{login}', password: {password}")
+    @Nonnull
+    public LoginPage fillLoginPage(String login, String password) {
+        setUsername(login);
+        setPassword(password);
+        return this;
+    }
+
+    @Step("Set username: '{username}'")
+    @Nonnull
+    public LoginPage setUsername(String username) {
+        usernameInput.setValue(username);
+        return this;
+    }
+
+    @Step("Set password: '{password}'")
+    @Nonnull
+    public LoginPage setPassword(String password) {
+        passwordInput.setValue(password);
+        return this;
+    }
+
+    @Step("Submit login")
+    @Nonnull
+    public <T extends BasePage<?>> T submit(T expectedPage) {
+        submitButton.click();
+        return expectedPage;
+    }
+
+    @Step("Check error on page: {error}")
+    @Nonnull
+    public LoginPage checkError(String error) {
+        errorContainer.shouldHave(text(error));
+        return this;
+    }
+
+    @Override
+    @Step("Check that page is loaded")
+    @Nonnull
+    public LoginPage checkThatPageLoaded() {
+        usernameInput.should(visible);
+        passwordInput.should(visible);
+        return this;
     }
 }
