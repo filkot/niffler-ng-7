@@ -1,61 +1,43 @@
 package guru.qa.niffler.page;
 
-import com.codeborne.selenide.SelenideElement;
 import guru.qa.niffler.page.component.Header;
 import guru.qa.niffler.page.component.SpendingTable;
+import guru.qa.niffler.page.component.StatComponent;
+import io.qameta.allure.Step;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
-import static com.codeborne.selenide.Selenide.$;
 
 @ParametersAreNonnullByDefault
 public class MainPage extends BasePage<MainPage> {
 
-    private final Header header = new Header();
-    private final SpendingTable spendings = new SpendingTable();
+    public static final String URL = CFG.frontUrl() + "main";
 
-
-    private final SelenideElement historyOfSpending = $("#spendings");
-    private final SelenideElement statistic = $("#stat");
-
-    @Nonnull
-    public SpendingTable spendingTable() {
-        return spendings;
-    }
+    protected final Header header = new Header();
+    protected final SpendingTable spendingTable = new SpendingTable();
+    protected final StatComponent statComponent = new StatComponent();
 
     @Nonnull
-    public EditSpendingPage editSpending(String spendingDescription) {
-        return spendings.editSpending(spendingDescription);
+    public Header getHeader() {
+        return header;
     }
 
     @Nonnull
-    public EditSpendingPage addNewSpending() {
-        return header.addSpending();
+    public SpendingTable getSpendingTable() {
+        spendingTable.getSelf().scrollIntoView(true);
+        return spendingTable;
     }
 
+    @Override
+    @Step("Check that page is loaded")
     @Nonnull
-    public ProfilePage openProfilePage() {
-        return header.goToProfilePage();
-    }
-
-    @Nonnull
-    public FriendsPage openFriendsPage() {
-        return header.goToFriendsPage();
-    }
-
-    @Nonnull
-    public AllPeoplePage openAllPeoplePage() {
-        return header.goToAllPeoplePage();
-    }
-
-    public void checkThatTableContainsSpending(String spendingDescription) {
-        spendings.checkTableContainsSpending(spendingDescription);
-    }
-
-    public void checkThatMainPageVisible() {
-        historyOfSpending.should(visible);
-        statistic.should(visible);
+    public MainPage checkThatPageLoaded() {
+        header.getSelf().should(visible).shouldHave(text("Niffler"));
+        statComponent.getSelf().should(visible).shouldHave(text("Statistics"));
+        spendingTable.getSelf().should(visible).shouldHave(text("History of Spendings"));
+        return this;
     }
 }

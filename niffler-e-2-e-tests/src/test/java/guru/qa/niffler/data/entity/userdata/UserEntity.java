@@ -1,7 +1,7 @@
 package guru.qa.niffler.data.entity.userdata;
 
 import guru.qa.niffler.model.CurrencyValues;
-import guru.qa.niffler.model.UserJson;
+import guru.qa.niffler.model.rest.UserJson;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -49,6 +49,26 @@ public class UserEntity implements Serializable {
 
     @OneToMany(mappedBy = "addressee", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FriendshipEntity> friendshipAddressees = new ArrayList<>();
+
+    public UserEntity(UUID id) {
+        this.id = id;
+    }
+
+    public UserEntity() {
+    }
+
+    public static UserEntity fromJson(UserJson json) {
+        UserEntity ue = new UserEntity();
+        ue.setId(json.id());
+        ue.setUsername(json.username());
+        ue.setCurrency(json.currency());
+        ue.setFirstname(json.firstname());
+        ue.setSurname(json.surname());
+        ue.setFullname(json.fullname());
+        ue.setPhoto(json.photo() != null ? json.photo().getBytes(StandardCharsets.UTF_8) : null);
+        ue.setPhotoSmall(json.photoSmall() != null ? json.photoSmall().getBytes(StandardCharsets.UTF_8) : null);
+        return ue;
+    }
 
     public void addFriends(FriendshipStatus status, UserEntity... friends) {
         List<FriendshipEntity> friendsEntities = Stream.of(friends)
@@ -112,18 +132,5 @@ public class UserEntity implements Serializable {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
-    }
-
-    public static UserEntity fromJson(UserJson json) {
-        UserEntity ue = new UserEntity();
-        ue.setId(json.id());
-        ue.setUsername(json.username());
-        ue.setCurrency(json.currency());
-        ue.setFirstname(json.firstname());
-        ue.setSurname(json.surname());
-        ue.setFullname(json.fullname());
-        ue.setPhoto(json.photo() != null ? json.photo().getBytes(StandardCharsets.UTF_8) : null);
-        ue.setPhotoSmall(json.photoSmall() != null ? json.photoSmall().getBytes(StandardCharsets.UTF_8) : null);
-        return ue;
     }
 }

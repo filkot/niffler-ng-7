@@ -1,8 +1,7 @@
 package guru.qa.niffler.data.entity.spend;
 
-import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.CurrencyValues;
-import guru.qa.niffler.model.SpendJson;
+import guru.qa.niffler.model.rest.SpendJson;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,6 +44,29 @@ public class SpendEntity implements Serializable {
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private CategoryEntity category;
 
+    public SpendEntity(UUID id) {
+        this.id = id;
+    }
+
+    public SpendEntity() {
+    }
+
+    public static SpendEntity fromJson(SpendJson json) {
+        SpendEntity se = new SpendEntity();
+        se.setId(json.id());
+        se.setUsername(json.username());
+        se.setCurrency(json.currency());
+        se.setSpendDate(new java.sql.Date(json.spendDate().getTime()));
+        se.setAmount(json.amount());
+        se.setDescription(json.description());
+        se.setCategory(
+                CategoryEntity.fromJson(
+                        json.category()
+                )
+        );
+        return se;
+    }
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
@@ -59,21 +81,5 @@ public class SpendEntity implements Serializable {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
-    }
-
-    public static SpendEntity fromJson(SpendJson json) {
-        final CategoryJson category = json.category();
-
-        SpendEntity spendEntity = new SpendEntity();
-
-        spendEntity.setId(json.id());
-        spendEntity.setSpendDate(new java.sql.Date(json.spendDate().getTime()));
-        spendEntity.setCategory(CategoryEntity.fromJson(category));
-        spendEntity.setCurrency(json.currency());
-        spendEntity.setAmount(json.amount());
-        spendEntity.setDescription(json.description());
-        spendEntity.setUsername(json.username());
-
-        return spendEntity;
     }
 }

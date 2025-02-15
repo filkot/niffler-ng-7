@@ -17,9 +17,20 @@ public class BrowserExtension implements
         TestExecutionExceptionHandler,
         LifecycleMethodExecutionExceptionHandler {
 
+    private static void doScreenshot() {
+        if (WebDriverRunner.hasWebDriverStarted()) {
+            Allure.addAttachment(
+                    "Screen on fail",
+                    new ByteArrayInputStream(
+                            ((TakesScreenshot) WebDriverRunner.getWebDriver()).getScreenshotAs(OutputType.BYTES)
+                    )
+            );
+        }
+    }
+
     @Override
     public void afterEach(ExtensionContext context) throws Exception {
-        if(WebDriverRunner.hasWebDriverStarted()){
+        if (WebDriverRunner.hasWebDriverStarted()) {
             Selenide.closeWebDriver();
         }
     }
@@ -28,7 +39,8 @@ public class BrowserExtension implements
     public void beforeEach(ExtensionContext context) throws Exception {
         SelenideLogger.addListener("Allure-selenide", new AllureSelenide()
                 .savePageSource(false)
-                .screenshots(false));
+                .screenshots(false)
+        );
     }
 
     @Override
@@ -47,14 +59,5 @@ public class BrowserExtension implements
     public void handleAfterEachMethodExecutionException(ExtensionContext context, Throwable throwable) throws Throwable {
         doScreenshot();
         throw throwable;
-    }
-
-    private static void doScreenshot(){
-        if(WebDriverRunner.hasWebDriverStarted()){
-            Allure.addAttachment("Screen on fail",
-                    new ByteArrayInputStream(
-                            ((TakesScreenshot) WebDriverRunner.getWebDriver()).getScreenshotAs(OutputType.BYTES)
-                    ));
-        }
     }
 }

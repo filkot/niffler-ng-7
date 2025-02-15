@@ -12,7 +12,11 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-@ExtendWith({UserExtension.class, CategoryExtension.class, SpendingExtension.class})
+@ExtendWith({
+        UserExtension.class,
+        CategoryExtension.class,
+        SpendingExtension.class
+})
 public @interface User {
     String username() default "";
 
@@ -20,9 +24,9 @@ public @interface User {
 
     Spending[] spendings() default {};
 
-    IncomeInvitation[] incomeInvitations() default {};
+    int friends() default 0;
 
-    OutcomeInvitation[] outcomeInvitations() default {};
+    int incomeInvitations() default 0;
 
-    Friend[] friends() default {};
+    int outcomeInvitations() default 0;
 }

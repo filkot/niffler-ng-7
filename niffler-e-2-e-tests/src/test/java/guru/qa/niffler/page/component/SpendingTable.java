@@ -2,105 +2,88 @@ package guru.qa.niffler.page.component;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import guru.qa.niffler.model.DataFilterValues;
 import guru.qa.niffler.page.EditSpendingPage;
 import io.qameta.allure.Step;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
 
+import static com.codeborne.selenide.ClickOptions.usingJavaScript;
 import static com.codeborne.selenide.CollectionCondition.size;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ParametersAreNonnullByDefault
 public class SpendingTable extends BaseComponent<SpendingTable> {
 
-    private final ElementsCollection tableRows = self.$$("tr");
-    private final SelenideElement periodInput = $("#period");
-    private final ElementsCollection dropdownList = $$("ul[role=listbox]");
-    private final SelenideElement deleteBtn = $("#delete");
     private final SearchField searchField = new SearchField();
+    private final SelenideElement periodMenu = self.$("#period");
+    private final SelenideElement currencyMenu = self.$("#currency");
+    private final ElementsCollection menuItems = $$(".MuiList-padding li");
+    private final SelenideElement deleteBtn = self.$("#delete");
+    private final SelenideElement popup = $("div[role='dialog']");
 
-    private final SelenideElement popUp = $("div[role='dialog']");
+    private final SelenideElement tableHeader = self.$(".MuiTableHead-root");
+    private final ElementsCollection headerCells = tableHeader.$$(".MuiTableCell-root");
+
+    private final ElementsCollection tableRows = self.$("tbody").$$("tr");
+
 
     public SpendingTable() {
-        super($("#spendings tbody"));
+        super($("#spendings"));
     }
 
-    @Step("Выбираем период {period} в таблице трат")
+    @Step("Select table period '{period}'")
     @Nonnull
     public SpendingTable selectPeriod(DataFilterValues period) {
-        periodInput.click();
-        dropdownList.find(text(period.name())).click();
+        periodMenu.click();
+        menuItems.find(text(period.text)).click();
         return this;
     }
 
-    @Step("Редактируем трату с описанием {description}")
+    @Step("Edit spending with description '{description}'")
     @Nonnull
     public EditSpendingPage editSpending(String description) {
-        findSpendingRow(description).$$("td").get(5).click();
+        searchSpendingByDescription(description);
+        SelenideElement row = tableRows.find(text(description));
+        row.$$("td").get(5).click();
         return new EditSpendingPage();
     }
 
-    @Step("Удаляем трату с описанием {description}")
+    @Step("Delete spending with description '{description}'")
     @Nonnull
     public SpendingTable deleteSpending(String description) {
-        findSpendingRow(description).$$("td").get(0).click();
+        searchSpendingByDescription(description);
+        SelenideElement row = tableRows.find(text(description));
+        row.$$("td").get(0).click();
         deleteBtn.click();
-        confirmDelete();
+        popup.$(byText("Delete")).click(usingJavaScript());
         return this;
     }
 
-    @Step("Проверяем наличие траты с категорией {categoryName} и с описанием - {description}")
+    @Step("Search spending with description '{description}'")
     @Nonnull
-    public SpendingTable checkSpendingWith(String categoryName, String description) {
-        findSpendingRow(description).$$("td").get(1).shouldHave(text(categoryName));
+    public SpendingTable searchSpendingByDescription(String description) {
+        searchField.search(description);
         return this;
     }
 
-    @Step("Проверяем наличие траты с описанием - {spendingDescription}")
+    @Step("Check that table contains data '{expectedSpend}'")
     @Nonnull
-    public SpendingTable checkTableContainsSpending(String spendingDescription) {
-        findSpendingRow(spendingDescription).shouldBe(visible);
+    public SpendingTable checkTableContains(String expectedSpend) {
+        searchSpendingByDescription(expectedSpend);
+        tableRows.find(text(expectedSpend)).should(visible);
         return this;
     }
 
-    @Step("Проверяем наличие трат по описанию - {expectedSpends}")
-    @Nonnull
-    public SpendingTable checkTableContains(String... expectedSpends) {
-        Set<String> actualSpends = tableRows
-                .stream()
-                .map(SelenideElement::getText)
-                .collect(Collectors.toSet());
-        assertTrue(
-                Arrays.stream(expectedSpends).collect(Collectors.toSet())
-                        .containsAll(actualSpends)
-        );
-        return this;
-    }
-
-    @Step("Проверяем количество трат в таблице - {expectedSize}")
+    @Step("Check that table have size '{expectedSize}'")
     @Nonnull
     public SpendingTable checkTableSize(int expectedSize) {
-        tableRows.shouldHave(size(expectedSize));
+        tableRows.should(size(expectedSize));
         return this;
-    }
-
-    @Step("Ищем трату с описанием {description}")
-    @Nonnull
-    private SelenideElement findSpendingRow(String description) {
-        searchField.search(description);
-        return tableRows.find(text(description));
-    }
-
-    private void confirmDelete() {
-        popUp.$(byText("Delete")).click();
     }
 }

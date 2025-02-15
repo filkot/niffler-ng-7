@@ -7,21 +7,17 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.metamodel.Metamodel;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 
-
-/**
- * EntityManager по спецификации является не потока безопасным.
- * Этот декоратор обеспечивает разделения EntityManager между потоками,
- * чтобы каждый поток взаимодействовал только со своим инстансом EntityManager
- */
+@SuppressWarnings("resource")
 public class ThreadSafeEntityManager implements EntityManager {
 
     private final ThreadLocal<EntityManager> threadEm = new ThreadLocal<>();
     private final EntityManagerFactory emf;
 
-    public ThreadSafeEntityManager(EntityManager delegate) {
+    public ThreadSafeEntityManager(@Nonnull EntityManager delegate) {
         threadEm.set(delegate);
         emf = delegate.getEntityManagerFactory();
     }
@@ -32,7 +28,6 @@ public class ThreadSafeEntityManager implements EntityManager {
         }
         return threadEm.get();
     }
-
 
     @Override
     public void close() {
@@ -88,13 +83,13 @@ public class ThreadSafeEntityManager implements EntityManager {
     }
 
     @Override
-    public void setFlushMode(FlushModeType flushMode) {
-        threadEm().setFlushMode(flushMode);
+    public FlushModeType getFlushMode() {
+        return threadEm().getFlushMode();
     }
 
     @Override
-    public FlushModeType getFlushMode() {
-        return threadEm().getFlushMode();
+    public void setFlushMode(FlushModeType flushMode) {
+        threadEm().setFlushMode(flushMode);
     }
 
     @Override

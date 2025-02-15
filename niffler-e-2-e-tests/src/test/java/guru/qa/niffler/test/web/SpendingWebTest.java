@@ -1,11 +1,10 @@
 package guru.qa.niffler.test.web;
 
 import com.codeborne.selenide.Selenide;
-import guru.qa.niffler.config.Config;
 import guru.qa.niffler.jupiter.annotation.Spending;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.jupiter.annotation.meta.WebTest;
-import guru.qa.niffler.model.UserJson;
+import guru.qa.niffler.model.rest.UserJson;
 import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.MainPage;
 import guru.qa.niffler.utils.RandomDataUtils;
@@ -16,57 +15,42 @@ import java.util.Date;
 @WebTest
 public class SpendingWebTest {
 
-    private static final Config CFG = Config.getInstance();
-
     @User(
-            spendings = {
-                    @Spending(
-                            category = "Обучение",
-                            description = "Обучение Advanced 2.0",
-                            amount = 79990
-                    )
-            }
+            spendings = @Spending(
+                    category = "Обучение",
+                    description = "Обучение Advanced 2.0",
+                    amount = 79990
+            )
     )
     @Test
     void categoryDescriptionShouldBeChangedFromTable(UserJson user) {
         final String newDescription = "Обучение Niffler Next Generation";
-        Selenide.open(CFG.frontUrl(), LoginPage.class)
-                .login(user.username(), user.testData().password())
-                .editSpending(user.testData().spends().getFirst().description())
+
+        Selenide.open(LoginPage.URL, LoginPage.class)
+                .fillLoginPage(user.username(), user.testData().password())
+                .submit(new MainPage())
+                .getSpendingTable()
+                .editSpending("Обучение Advanced 2.0")
                 .setNewSpendingDescription(newDescription)
                 .saveSpending();
-        new MainPage().spendingTable()
-                .checkTableContainsSpending(newDescription);
-    }
 
-    @User(
-            spendings = {
-                    @Spending(
-                            category = "Обучение",
-                            description = "Обучение Advanced 2.0",
-                            amount = 79990
-                    )
-            }
-    )
-    @Test
-    void createSpendingTest(UserJson user) {
-        Selenide.open(CFG.frontUrl(), LoginPage.class)
-                .login(user.username(), user.testData().password())
-                .spendingTable()
-                .checkTableContainsSpending(user.testData().spends().getFirst().description());
+        new MainPage().getSpendingTable()
+                .checkTableContains(newDescription);
     }
 
     @User
     @Test
     void shouldAddNewSpending(UserJson user) {
-        final String category = "Friends";
-        final int amount = 100;
-        final Date currentDate = new Date();
-        final String description = RandomDataUtils.getRandomSentence(3);
+        String category = "Friends";
+        int amount = 100;
+        Date currentDate = new Date();
+        String description = RandomDataUtils.randomSentence(3);
 
         Selenide.open(LoginPage.URL, LoginPage.class)
-                .login(user.username(), user.testData().password())
-                .addNewSpending()
+                .fillLoginPage(user.username(), user.testData().password())
+                .submit(new MainPage())
+                .getHeader()
+                .addSpendingPage()
                 .setNewSpendingCategory(category)
                 .setNewSpendingAmount(amount)
                 .setNewSpendingDate(currentDate)
@@ -74,16 +58,18 @@ public class SpendingWebTest {
                 .saveSpending()
                 .checkAlertMessage("New spending is successfully created");
 
-        new MainPage().spendingTable()
-                .checkTableContainsSpending(description);
+        new MainPage().getSpendingTable()
+                .checkTableContains(description);
     }
 
     @User
     @Test
     void shouldNotAddSpendingWithEmptyCategory(UserJson user) {
         Selenide.open(LoginPage.URL, LoginPage.class)
-                .login(user.username(), user.testData().password())
-                .addNewSpending()
+                .fillLoginPage(user.username(), user.testData().password())
+                .submit(new MainPage())
+                .getHeader()
+                .addSpendingPage()
                 .setNewSpendingAmount(100)
                 .setNewSpendingDate(new Date())
                 .saveSpending()
@@ -94,8 +80,10 @@ public class SpendingWebTest {
     @Test
     void shouldNotAddSpendingWithEmptyAmount(UserJson user) {
         Selenide.open(LoginPage.URL, LoginPage.class)
-                .login(user.username(), user.testData().password())
-                .addNewSpending()
+                .fillLoginPage(user.username(), user.testData().password())
+                .submit(new MainPage())
+                .getHeader()
+                .addSpendingPage()
                 .setNewSpendingCategory("Friends")
                 .setNewSpendingDate(new Date())
                 .saveSpending()
@@ -112,9 +100,11 @@ public class SpendingWebTest {
     @Test
     void deleteSpendingTest(UserJson user) {
         Selenide.open(LoginPage.URL, LoginPage.class)
-                .login(user.username(), user.testData().password())
-                .spendingTable()
+                .fillLoginPage(user.username(), user.testData().password())
+                .submit(new MainPage())
+                .getSpendingTable()
                 .deleteSpending("Обучение Advanced 2.0")
                 .checkTableSize(0);
     }
 }
+

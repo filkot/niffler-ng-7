@@ -17,13 +17,13 @@ public class SelectField extends BaseComponent<SelectField> {
         super(self);
     }
 
-    @Step("Pick value '{0}' from select component ")
+    @Step("Pick value '{value}' from select component ")
     public void setValue(String value) {
         self.click();
         $$("li[role='option']").find(text(value)).click();
     }
 
-    @Step("Check that selected value is equal to '{0}'")
+    @Step("Check that selected value is equal to '{value}'")
     public void checkSelectValueIsEqualTo(String value) {
         self.shouldHave(text(value));
     }
