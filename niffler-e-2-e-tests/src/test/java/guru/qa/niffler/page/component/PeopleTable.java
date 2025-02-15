@@ -5,6 +5,8 @@ import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 
+import javax.annotation.Nonnull;
+
 import static com.codeborne.selenide.CollectionCondition.size;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
@@ -23,12 +25,14 @@ public class PeopleTable extends BaseComponent<PeopleTable> {
     }
 
     @Step("Проверяем, что приглашение отправлено пользователю {username}")
+    @Nonnull
     public PeopleTable checkInvitationSentToUser(String username) {
         searchAndFindRow(username).shouldHave(text("Waiting..."));
         return this;
     }
 
     @Step("Проверяем, что количество отправленных приглашений - {amount}")
+    @Nonnull
     public PeopleTable checkAmountOfOutcomeInvitations(int amount) {
         ElementsCollection invites = $$(By.xpath("//tr[.//span[text()='Waiting...']]"));
         invites.shouldHave(size(amount));
@@ -36,11 +40,14 @@ public class PeopleTable extends BaseComponent<PeopleTable> {
     }
 
     @Step("Отправляем приглашение пользователю {username}")
+    @Nonnull
     public PeopleTable sendInvitationTo(String username) {
         searchAndFindRow(username).$(byText("Add friend")).click();
         return this;
     }
 
+    @Step("Поиск пользователя {username}")
+    @Nonnull
     private SelenideElement searchAndFindRow(String username) {
         searchField.search(username);
         return self.findAll("tr").find(text(username));

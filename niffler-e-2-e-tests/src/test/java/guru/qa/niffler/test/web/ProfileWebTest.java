@@ -8,6 +8,7 @@ import guru.qa.niffler.jupiter.annotation.meta.WebTest;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.UserJson;
 import guru.qa.niffler.page.LoginPage;
+import guru.qa.niffler.page.ProfilePage;
 import guru.qa.niffler.utils.RandomDataUtils;
 import org.junit.jupiter.api.Test;
 
@@ -32,26 +33,82 @@ public class ProfileWebTest {
 
     @User(
             username = "filkot",
-            categories = @Category(
-                    archived = false
-            )
+            categories = @Category
     )
     @Test
-    void activeCategoryShouldPresentInCategoryList(CategoryJson category) {
+    void activeCategoryShouldPresentInCategoryList(CategoryJson[] category) {
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login("filkot", "12345")
                 .addNewSpending()
-                .shouldSeeActiveCategoryInCategoryList(category.name());
+                .shouldSeeActiveCategoryInCategoryList(category[0].name());
     }
 
     @User
     @Test
-    void userInfoShouldBeSavedAfterEditing(UserJson user) {
-        final String name = RandomDataUtils.getRandomName();
-        Selenide.open(CFG.frontUrl(), LoginPage.class)
+    void shouldUpdateProfileWithAllFieldsSet(UserJson user) {
+        final String newName = RandomDataUtils.getRandomName();
+
+        ProfilePage profilePage = Selenide.open(LoginPage.URL, LoginPage.class)
                 .login(user.username(), user.testData().password())
                 .openProfilePage()
-                .setName(name)
-                .checkName(name);
+                .uploadPhotoFromClasspath("img/cat.jpeg")
+                .setName(newName)
+                .submitProfile()
+                .checkAlertMessage("Profile successfully updated");
+
+        Selenide.refresh();
+
+        profilePage.checkName(newName)
+                .checkPhotoExist();
+    }
+
+    @User
+    @Test
+    void shouldUpdateProfileWithOnlyRequiredFields(UserJson user) {
+        final String newName = RandomDataUtils.getRandomName();
+
+        ProfilePage profilePage = Selenide.open(LoginPage.URL, LoginPage.class)
+                .login(user.username(), user.testData().password())
+                .openProfilePage()
+                .setName(newName)
+                .submitProfile()
+                .checkAlertMessage("Profile successfully updated");
+
+        Selenide.refresh();
+
+        profilePage.checkName(newName);
+    }
+
+    @User
+    @Test
+    void shouldAddNewCategory(UserJson user) {
+        final String newCategory = RandomDataUtils.getRandomCategory();
+
+        Selenide.open(LoginPage.URL, LoginPage.class)
+                .login(user.username(), user.testData().password())
+                .openProfilePage()
+                .addCategory(newCategory)
+                .checkAlertMessage("You've added new category:")
+                .checkCategoryExists(newCategory);
+    }
+
+    @User(
+            categories = {
+                    @Category(name = "Food"),
+                    @Category(name = "Bars"),
+                    @Category(name = "Clothes"),
+                    @Category(name = "Friends"),
+                    @Category(name = "Music"),
+                    @Category(name = "Sports"),
+                    @Category(name = "Walks"),
+                    @Category(name = "Books")
+            }
+    )
+    @Test
+    void shouldForbidAddingMoreThat8Categories(UserJson user) {
+        Selenide.open(LoginPage.URL, LoginPage.class)
+                .login(user.username(), user.testData().password())
+                .openProfilePage()
+                .checkThatCategoryInputDisabled();
     }
 }

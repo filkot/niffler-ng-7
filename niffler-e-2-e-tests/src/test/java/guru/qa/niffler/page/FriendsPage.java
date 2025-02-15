@@ -5,6 +5,9 @@ import com.codeborne.selenide.SelenideElement;
 import guru.qa.niffler.page.component.SearchField;
 import io.qameta.allure.Step;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import static com.codeborne.selenide.CollectionCondition.size;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
@@ -12,6 +15,7 @@ import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
+@ParametersAreNonnullByDefault
 public class FriendsPage extends BasePage<FriendsPage> {
 
     private final SearchField searchField = new SearchField();
@@ -38,24 +42,28 @@ public class FriendsPage extends BasePage<FriendsPage> {
     }
 
     @Step("Проверяем количество друзей - {size}")
+    @Nonnull
     public FriendsPage checkAmountOfFriends(int size) {
         friendsTableRows.shouldHave(size(size));
         return this;
     }
 
     @Step("Принимаем заявку в друзья от {username}")
+    @Nonnull
     public FriendsPage acceptFriendInvitationFromUser(String username) {
         findRequestRow(username).$(byText("Accept")).click();
         return this;
     }
 
     @Step("Принимаем заявку в друзья")
+    @Nonnull
     public FriendsPage acceptFriendInvitation() {
         findFirstRequestRow().$(byText("Accept")).click();
         return this;
     }
 
     @Step("Отклоняем заявку в друзья от {username}")
+    @Nonnull
     public FriendsPage declineFriendInvitationFromUser(String username) {
         findRequestRow(username).$(byText("Decline")).click();
         confirmDecline();
@@ -63,9 +71,19 @@ public class FriendsPage extends BasePage<FriendsPage> {
     }
 
     @Step("Отклоняем заявку в друзья")
+    @Nonnull
     public FriendsPage declineFriendInvitation() {
         findFirstRequestRow().$(byText("Decline")).click();
         confirmDecline();
+        return this;
+    }
+
+    @Step("Удаляем друга с username {username}")
+    @Nonnull
+    public FriendsPage removeFriend(String username) {
+        SelenideElement friendRow = friendsTableRows.find(text(username));
+        friendRow.$("button[type='button']").click();
+        confirmDelete();
         return this;
     }
 
@@ -84,5 +102,9 @@ public class FriendsPage extends BasePage<FriendsPage> {
 
     private void confirmDecline() {
         popUp.$(byText("Decline")).click();
+    }
+
+    private void confirmDelete() {
+        popUp.$(byText("Delete")).click();
     }
 }

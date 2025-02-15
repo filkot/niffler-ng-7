@@ -4,10 +4,14 @@ import com.codeborne.selenide.SelenideElement;
 import guru.qa.niffler.page.*;
 import io.qameta.allure.Step;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
 
-public class Header extends BaseComponent<Header>{
+@ParametersAreNonnullByDefault
+public class Header extends BaseComponent<Header> {
 
     private final SelenideElement menuBtn = self.find("button");
     private final SelenideElement headerMenu = $("ul[role='menu']");
@@ -23,36 +27,42 @@ public class Header extends BaseComponent<Header>{
     }
 
     @Step("Открываем страницу Profile")
+    @Nonnull
     public ProfilePage goToProfilePage() {
         openMenuAndClick(profileBtn);
         return new ProfilePage();
     }
 
     @Step("Открываем страницу Friends")
+    @Nonnull
     public FriendsPage goToFriendsPage() {
         openMenuAndClick(friendsBtn);
         return new FriendsPage();
     }
 
     @Step("Открываем страницу All People")
+    @Nonnull
     public AllPeoplePage goToAllPeoplePage() {
         openMenuAndClick(allPeopleBtn);
         return new AllPeoplePage();
     }
 
     @Step("Делаем Log out")
+    @Nonnull
     public LoginPage signOut() {
         openMenuAndClick(signOutBtn);
         return new LoginPage();
     }
 
     @Step("Добавляем новый Spending")
+    @Nonnull
     public EditSpendingPage addSpending() {
         addSpendingLnk.click();
         return new EditSpendingPage();
     }
 
     @Step("Открываем главную страницу")
+    @Nonnull
     public MainPage goToMainPage() {
         mainPageLnk.click();
         return new MainPage();
