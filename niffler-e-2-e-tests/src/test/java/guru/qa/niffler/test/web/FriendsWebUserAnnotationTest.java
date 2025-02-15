@@ -1,7 +1,6 @@
 package guru.qa.niffler.test.web;
 
 import com.codeborne.selenide.Selenide;
-import guru.qa.niffler.config.Config;
 import guru.qa.niffler.jupiter.annotation.Friend;
 import guru.qa.niffler.jupiter.annotation.IncomeInvitation;
 import guru.qa.niffler.jupiter.annotation.OutcomeInvitation;
@@ -14,13 +13,11 @@ import org.junit.jupiter.api.Test;
 @WebTest
 public class FriendsWebUserAnnotationTest {
 
-    private static final Config CFG = Config.getInstance();
-
 
     @User
     @Test
     void friendsTableShouldBeEmptyForNewUser(UserJson user) {
-        Selenide.open(CFG.frontUrl(), LoginPage.class)
+        Selenide.open(LoginPage.URL, LoginPage.class)
                 .login(user.username(), user.testData().password())
                 .openFriendsPage()
                 .shouldSeeEmptyTabPanelFriends();
@@ -33,7 +30,7 @@ public class FriendsWebUserAnnotationTest {
     )
     @Test
     void friendShouldBePresentInFriendsTable(UserJson user) {
-        Selenide.open(CFG.frontUrl(), LoginPage.class)
+        Selenide.open(LoginPage.URL, LoginPage.class)
                 .login(user.username(), user.testData().password())
                 .openFriendsPage()
                 .shouldSeeFriendInFriendsTable(
@@ -48,7 +45,7 @@ public class FriendsWebUserAnnotationTest {
     )
     @Test
     void incomeInvitationBePresentInFriendsTable(UserJson user) {
-        Selenide.open(CFG.frontUrl(), LoginPage.class)
+        Selenide.open(LoginPage.URL, LoginPage.class)
                 .login(user.username(), user.testData().password())
                 .openFriendsPage()
                 .shouldSeeFriendNameRequestInRequestsTable(
@@ -63,7 +60,7 @@ public class FriendsWebUserAnnotationTest {
     )
     @Test
     void outcomeInvitationBePresentInAllPeoplesTable(UserJson user) {
-        Selenide.open(CFG.frontUrl(), LoginPage.class)
+        Selenide.open(LoginPage.URL, LoginPage.class)
                 .login(user.username(), user.testData().password())
                 .openAllPeoplePage()
                 .peopleTable()
@@ -79,8 +76,8 @@ public class FriendsWebUserAnnotationTest {
     )
     @Test
     void shouldBeAbleToAcceptFriendRequest(UserJson user) {
-        String username = user.testData().incomeInvitations().getFirst().username();
-        Selenide.open(CFG.frontUrl(), LoginPage.class)
+        final String username = user.testData().incomeInvitations().getFirst().username();
+        Selenide.open(LoginPage.URL, LoginPage.class)
                 .login(user.username(), user.testData().password())
                 .openFriendsPage()
                 .acceptFriendInvitation()
@@ -95,12 +92,27 @@ public class FriendsWebUserAnnotationTest {
     )
     @Test
     void shouldBeAbleToDeclineFriendRequest(UserJson user) {
-        String username = user.testData().incomeInvitations().getFirst().username();
-        Selenide.open(CFG.frontUrl(), LoginPage.class)
+        final String username = user.testData().incomeInvitations().getFirst().username();
+        Selenide.open(LoginPage.URL, LoginPage.class)
                 .login(user.username(), user.testData().password())
                 .openFriendsPage()
                 .declineFriendInvitation()
                 .checkAlertMessage("Invitation of " + username + " is declined")
+                .checkAmountOfFriends(0);
+    }
+
+    @User(
+            friends = {
+                    @Friend
+            }
+    )
+    @Test
+    void shouldRemoveFriend(UserJson user) {
+        final String userToRemove = user.testData().friends().getFirst().username();
+        Selenide.open(LoginPage.URL, LoginPage.class)
+                .login(user.username(), user.testData().password())
+                .openFriendsPage()
+                .removeFriend(userToRemove)
                 .checkAmountOfFriends(0);
     }
 }

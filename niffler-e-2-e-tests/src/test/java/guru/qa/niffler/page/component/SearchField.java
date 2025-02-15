@@ -2,10 +2,14 @@ package guru.qa.niffler.page.component;
 
 import io.qameta.allure.Step;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import static com.codeborne.selenide.Condition.empty;
 import static com.codeborne.selenide.Condition.not;
 import static com.codeborne.selenide.Selenide.$;
 
+@ParametersAreNonnullByDefault
 public class SearchField extends BaseComponent<SearchField> {
 
 
@@ -14,12 +18,15 @@ public class SearchField extends BaseComponent<SearchField> {
     }
 
     @Step("В поиск вводим {text}")
+    @Nonnull
     public SearchField search(String text) {
         clearIfNotEmpty();
         self.setValue(text).pressEnter();
         return this;
     }
 
+    @Nonnull
+    @Step("Очищаем поле ввода")
     private SearchField clearIfNotEmpty() {
         if (self.is(not(empty))) {
             self.clear();
