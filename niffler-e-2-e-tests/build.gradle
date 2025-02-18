@@ -3,6 +3,7 @@ buildscript {
         grpcVersion = '1.66.0'
         junitVersion = '5.11.0'
         allureVersion = '2.29.0'
+        ashotVersion = '1.5.4'
         selenideVersion = '7.4.2'
         okhttp3Version = '4.11.0'
         retrofitVersion = '2.11.0'
@@ -125,6 +126,7 @@ dependencies {
     // WEB
     testImplementation "com.codeborne:selenide:${selenideVersion}"
     // Utils
+    testImplementation "ru.yandex.qatools.ashot:ashot:${ashotVersion}"
     testImplementation("com.github.javafaker:javafaker:${fakerVersion}") {
         exclude group: 'org.yaml'
     }

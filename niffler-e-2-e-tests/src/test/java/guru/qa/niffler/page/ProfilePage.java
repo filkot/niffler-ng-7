@@ -2,7 +2,9 @@ package guru.qa.niffler.page;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import guru.qa.niffler.page.component.Header;
 import io.qameta.allure.Step;
+import org.openqa.selenium.By;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.annotation.Nonnull;
@@ -12,7 +14,9 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+import static com.codeborne.selenide.ClickOptions.usingJavaScript;
 import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
@@ -21,6 +25,7 @@ public class ProfilePage extends BasePage<ProfilePage> {
 
     public static final String URL = CFG.frontUrl() + "profile";
 
+    protected final Header header = new Header();
     private final SelenideElement avatar = $("#image__input").parent().$("img");
     private final SelenideElement userName = $("#username");
     private final SelenideElement nameInput = $("#name");
@@ -29,8 +34,15 @@ public class ProfilePage extends BasePage<ProfilePage> {
     private final SelenideElement categoryInput = $("input[name='category']");
     private final SelenideElement archivedSwitcher = $(".MuiSwitch-input");
 
+    private final SelenideElement popup = $("div[role='dialog']");
+
     private final ElementsCollection bubbles = $$(".MuiChip-filled.MuiChip-colorPrimary");
     private final ElementsCollection bubblesArchived = $$(".MuiChip-filled.MuiChip-colorDefault");
+
+    @Nonnull
+    public Header getHeader() {
+        return header;
+    }
 
     @Step("Set name: '{name}'")
     @Nonnull
@@ -51,6 +63,14 @@ public class ProfilePage extends BasePage<ProfilePage> {
     @Nonnull
     public ProfilePage addCategory(String category) {
         categoryInput.setValue(category).pressEnter();
+        return this;
+    }
+
+    @Step("Archive category: '{categoryName}'")
+    @Nonnull
+    public ProfilePage archiveCategory(String categoryName) {
+        $(By.xpath("//div[span[text()='"+categoryName+"']]/following-sibling::div//button[@aria-label='Archive category']")).click();
+        popup.$(byText("Archive")).click(usingJavaScript());
         return this;
     }
 
