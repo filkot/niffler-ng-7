@@ -25,69 +25,6 @@ public class ScreenShotTestExtension implements ParameterResolver, TestExecution
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static void rewriteExpected(ScreenShotTest annotation) {
-        BufferedImage actual = getActual();
-        if (actual != null) {
-            // Перезаписываем ожидаемый скриншот
-            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-                ImageIO.write(actual, "png", outputStream);
-
-                // Получаем путь к ресурсу из аннотации
-                String resourcePath = annotation.value().replace("stat", "new_stat");
-                Path destinationPath = Paths.get("src/test/resources", resourcePath);
-
-                // Создаем директории, если они не существуют
-                Files.createDirectories(destinationPath.getParent());
-
-                // Сохраняем новый ожидаемый скриншот в ресурсы
-                Files.write(destinationPath, outputStream.toByteArray(),
-                        StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-                System.out.println("Expected screenshot rewritten: " + destinationPath);
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to rewrite expected screenshot", e);
-            }
-        }
-    }
-
-    private static ScreenShotTest getAnnotation(ExtensionContext context) {
-        return AnnotationSupport.findAnnotation(context.getRequiredTestMethod(), ScreenShotTest.class)
-                .orElseThrow(() -> new ParameterResolutionException(
-                        "No @ScreenShotTest annotation found on method: " + context.getRequiredTestMethod().getName()));
-    }
-
-    public static BufferedImage getExpected() {
-        return TestMethodContextExtension.context().getStore(NAMESPACE).get("expected", BufferedImage.class);
-    }
-
-    public static void setExpected(BufferedImage expected) {
-        TestMethodContextExtension.context().getStore(NAMESPACE).put("expected", expected);
-    }
-
-    public static BufferedImage getActual() {
-        return TestMethodContextExtension.context().getStore(NAMESPACE).get("actual", BufferedImage.class);
-    }
-
-    public static void setActual(BufferedImage actual) {
-        TestMethodContextExtension.context().getStore(NAMESPACE).put("actual", actual);
-    }
-
-    public static BufferedImage getDiff() {
-        return TestMethodContextExtension.context().getStore(NAMESPACE).get("diff", BufferedImage.class);
-    }
-
-    public static void setDiff(BufferedImage diff) {
-        TestMethodContextExtension.context().getStore(NAMESPACE).put("diff", diff);
-    }
-
-    public static byte[] imageToByte(BufferedImage image) {
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            ImageIO.write(image, "png", outputStream);
-            return outputStream.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
         return AnnotationSupport.isAnnotated(extensionContext.getRequiredTestMethod(), ScreenShotTest.class) &&
@@ -134,4 +71,69 @@ public class ScreenShotTestExtension implements ParameterResolver, TestExecution
         // Пробрасываем исключение дальше
         throw throwable;
     }
+
+    public static BufferedImage getExpected() {
+        return TestMethodContextExtension.context().getStore(NAMESPACE).get("expected", BufferedImage.class);
+    }
+
+    public static void setExpected(BufferedImage expected) {
+        TestMethodContextExtension.context().getStore(NAMESPACE).put("expected", expected);
+    }
+
+    public static BufferedImage getActual() {
+        return TestMethodContextExtension.context().getStore(NAMESPACE).get("actual", BufferedImage.class);
+    }
+
+    public static void setActual(BufferedImage actual) {
+        TestMethodContextExtension.context().getStore(NAMESPACE).put("actual", actual);
+    }
+
+    public static BufferedImage getDiff() {
+        return TestMethodContextExtension.context().getStore(NAMESPACE).get("diff", BufferedImage.class);
+    }
+
+    public static void setDiff(BufferedImage diff) {
+        TestMethodContextExtension.context().getStore(NAMESPACE).put("diff", diff);
+    }
+
+    private static ScreenShotTest getAnnotation(ExtensionContext context) {
+        return AnnotationSupport.findAnnotation(context.getRequiredTestMethod(), ScreenShotTest.class)
+                .orElseThrow(() -> new ParameterResolutionException(
+                        "No @ScreenShotTest annotation found on method: " + context.getRequiredTestMethod().getName()));
+    }
+
+    private static void rewriteExpected(ScreenShotTest annotation) {
+        BufferedImage actual = getActual();
+        if (actual != null) {
+            // Перезаписываем ожидаемый скриншот
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                ImageIO.write(actual, "png", outputStream);
+
+                // Получаем путь к ресурсу из аннотации
+                String resourcePath = annotation.value();
+                Path destinationPath = Paths.get("src/test/resources", resourcePath);
+
+                // Создаем директории, если они не существуют
+                Files.createDirectories(destinationPath.getParent());
+
+                // Сохраняем новый ожидаемый скриншот в ресурсы
+                Files.write(destinationPath, outputStream.toByteArray(),
+                        StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                System.out.println("Expected screenshot rewritten: " + destinationPath);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to rewrite expected screenshot", e);
+            }
+        }
+    }
+
+    public static byte[] imageToByte(BufferedImage image) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            ImageIO.write(image, "png", outputStream);
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 }
