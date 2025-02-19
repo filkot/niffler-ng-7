@@ -15,6 +15,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.executeJavaScript;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -141,6 +142,8 @@ public class ScreenShotsTest {
     }
 
     private static void waitingLoadingCanvas(SelenideElement image) {
+        Selenide.sleep(2000);
+        image.shouldBe(visible);
         executeJavaScript(
                 "var callback = arguments[arguments.length - 1];" +
                         "var canvas = arguments[0];" +

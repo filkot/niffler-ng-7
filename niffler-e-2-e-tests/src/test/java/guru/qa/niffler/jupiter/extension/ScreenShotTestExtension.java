@@ -111,7 +111,7 @@ public class ScreenShotTestExtension implements ParameterResolver, TestExecution
 
                 // Получаем путь к ресурсу из аннотации
                 String resourcePath = annotation.value();
-                Path destinationPath = Paths.get("src/test/resources", resourcePath);
+                Path destinationPath = Paths.get("niffler-e-2-e-tests/src/test/resources/", resourcePath);
 
                 // Создаем директории, если они не существуют
                 Files.createDirectories(destinationPath.getParent());
