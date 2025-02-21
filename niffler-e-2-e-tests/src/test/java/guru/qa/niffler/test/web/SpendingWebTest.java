@@ -5,16 +5,15 @@ import guru.qa.niffler.jupiter.annotation.ScreenShotTest;
 import guru.qa.niffler.jupiter.annotation.Spending;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.jupiter.annotation.meta.WebTest;
-import guru.qa.niffler.model.rest.SpendJson;
 import guru.qa.niffler.model.rest.UserJson;
 import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.MainPage;
 import guru.qa.niffler.utils.RandomDataUtils;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @WebTest
 public class SpendingWebTest {
@@ -127,13 +126,11 @@ public class SpendingWebTest {
     void checkBubblesWithArchivedCategoriesTest(UserJson user) {
         String archivedCategory = user.testData().spends().getLast().category().name();
 
-        List<String> expectedBubbles = new ArrayList<>();
-        for (SpendJson spend : user.testData().spends()) {
-            String category = spend.category().name().equals(archivedCategory) ? "Archived" : spend.category().name();
-            double amount = spend.amount();
-            String formattedString = String.format("%s %.0f ₽", category, amount);
-            expectedBubbles.add(formattedString);
-        }
+        List<String> expectedBubbles = user.testData().spends().stream()
+                .map(spend -> String.format("%s %.0f ₽",
+                        spend.category().name().equals(archivedCategory) ? "Archived" : spend.category().name(),
+                        spend.amount()))
+                .collect(Collectors.toList());
 
         Selenide.open(LoginPage.URL, LoginPage.class)
                 .fillLoginPage(user.username(), user.testData().password())
