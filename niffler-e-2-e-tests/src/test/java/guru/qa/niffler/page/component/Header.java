@@ -19,6 +19,7 @@ public class Header extends BaseComponent<Header> {
     private final SelenideElement menuBtn = self.$("button");
     private final SelenideElement menu = $("ul[role='menu']");
     private final ElementsCollection menuItems = menu.$$("li");
+
     public Header() {
         super($("#root header"));
     }

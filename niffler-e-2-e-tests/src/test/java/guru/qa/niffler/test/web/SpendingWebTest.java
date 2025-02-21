@@ -1,6 +1,7 @@
 package guru.qa.niffler.test.web;
 
 import com.codeborne.selenide.Selenide;
+import guru.qa.niffler.jupiter.annotation.ScreenShotTest;
 import guru.qa.niffler.jupiter.annotation.Spending;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.jupiter.annotation.meta.WebTest;
@@ -11,6 +12,8 @@ import guru.qa.niffler.utils.RandomDataUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @WebTest
 public class SpendingWebTest {
@@ -103,8 +106,42 @@ public class SpendingWebTest {
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage())
                 .getSpendingTable()
-                .deleteSpending("Обучение Advanced 2.0")
+                .deleteSpending(user.testData().spends().getFirst().description())
                 .checkTableSize(0);
+    }
+
+    @User(
+            spendings = {
+                    @Spending(
+                            category = "Обучение",
+                            description = "Обучение Advanced 2.0",
+                            amount = 79990),
+                    @Spending(
+                            category = "Магазины",
+                            description = "Продукты",
+                            amount = 50000)
+            }
+    )
+    @ScreenShotTest(value = "img/expected-archived-stat.png", rewriteExpected = true)
+    void checkBubblesWithArchivedCategoriesTest(UserJson user) {
+        String archivedCategory = user.testData().spends().getLast().category().name();
+
+        List<String> expectedBubbles = user.testData().spends().stream()
+                .map(spend -> String.format("%s %.0f ₽",
+                        spend.category().name().equals(archivedCategory) ? "Archived" : spend.category().name(),
+                        spend.amount()))
+                .collect(Collectors.toList());
+
+        Selenide.open(LoginPage.URL, LoginPage.class)
+                .fillLoginPage(user.username(), user.testData().password())
+                .submit(new MainPage())
+                .getHeader()
+                .toProfilePage()
+                .archiveCategory(archivedCategory)
+                .getHeader()
+                .toMainPage()
+                .getStatComponent()
+                .checkBubbles(expectedBubbles);
     }
 }
 

@@ -22,9 +22,11 @@ public class Calendar extends BaseComponent<Calendar> {
     private final SelenideElement nextMonthButton = self.$("button[title='Next month']");
     private final SelenideElement currentMonthAndYear = self.$(".MuiPickersCalendarHeader-label");
     private final ElementsCollection dateRows = self.$$(".MuiDayCalendar-weekContainer");
+
     public Calendar(SelenideElement self) {
         super(self);
     }
+
     public Calendar() {
         super($(".MuiPickersLayout-root"));
     }

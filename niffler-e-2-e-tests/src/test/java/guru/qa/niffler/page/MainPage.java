@@ -31,6 +31,12 @@ public class MainPage extends BasePage<MainPage> {
         return spendingTable;
     }
 
+    @Nonnull
+    public StatComponent getStatComponent() {
+        statComponent.getSelf().scrollIntoView(true);
+        return statComponent;
+    }
+
     @Override
     @Step("Check that page is loaded")
     @Nonnull
