@@ -9,6 +9,7 @@ import guru.qa.niffler.model.rest.UserJson;
 import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.MainPage;
 import guru.qa.niffler.page.ProfilePage;
+import guru.qa.niffler.page.component.StatComponent;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -30,8 +31,8 @@ public class ScreenShotsTest {
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage());
 
-        new MainPage().getStatComponent()
-                .checkStatImage(expected);
+        StatComponent statComponent = new MainPage().getStatComponent();
+        statComponent.checkStatImage(expected);
     }
 
 
