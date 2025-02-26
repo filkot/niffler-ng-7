@@ -1,7 +1,7 @@
 package guru.qa.niffler.api.core;
 
 import guru.qa.niffler.config.Config;
-import guru.qa.niffler.data.logging.AllureOkHttpInterceptor;
+import io.qameta.allure.okhttp3.AllureOkHttp3;
 import okhttp3.Interceptor;
 import okhttp3.JavaNetCookieJar;
 import okhttp3.OkHttpClient;
@@ -48,7 +48,10 @@ public abstract class RestClient {
         }
 
         builder.addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(level));
-        builder.addNetworkInterceptor(new AllureOkHttpInterceptor());
+        builder.addNetworkInterceptor(new AllureOkHttp3()
+                .setRequestTemplate("http-request.ftl")
+                .setResponseTemplate("http-response.ftl")
+        );
         builder.cookieJar(
                 new JavaNetCookieJar(
                         new CookieManager(
