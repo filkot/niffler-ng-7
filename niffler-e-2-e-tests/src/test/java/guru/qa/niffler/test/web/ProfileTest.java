@@ -1,20 +1,25 @@
 package guru.qa.niffler.test.web;
 
-import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.SelenideDriver;
 import guru.qa.niffler.jupiter.annotation.Category;
 import guru.qa.niffler.jupiter.annotation.User;
-import guru.qa.niffler.jupiter.annotation.meta.WebTest;
+import guru.qa.niffler.jupiter.extension.BrowserExtension;
 import guru.qa.niffler.model.rest.UserJson;
 import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.MainPage;
 import guru.qa.niffler.page.ProfilePage;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static guru.qa.niffler.utils.RandomDataUtils.randomCategoryName;
 import static guru.qa.niffler.utils.RandomDataUtils.randomName;
+import static guru.qa.niffler.utils.SelenideUtils.chromeConfig;
 
-@WebTest
 public class ProfileTest {
+
+    @RegisterExtension
+    private final BrowserExtension browserExtension = new BrowserExtension();
+    private final SelenideDriver chrome = new SelenideDriver(chromeConfig);
 
     @User(
             categories = @Category(
@@ -23,14 +28,17 @@ public class ProfileTest {
     )
     @Test
     void archivedCategoryShouldPresentInCategoriesList(UserJson user) {
+        browserExtension.drivers().add(chrome);
         final String categoryName = user.testData().categoryDescriptions()[0];
 
-        Selenide.open(LoginPage.URL, LoginPage.class)
+        chrome.open(LoginPage.URL);
+        new LoginPage(chrome)
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage())
                 .checkThatPageLoaded();
 
-        Selenide.open(ProfilePage.URL, ProfilePage.class)
+        chrome.open(ProfilePage.URL);
+        new ProfilePage()
                 .checkArchivedCategoryExists(categoryName);
     }
 
@@ -41,34 +49,40 @@ public class ProfileTest {
     )
     @Test
     void activeCategoryShouldPresentInCategoriesList(UserJson user) {
+        browserExtension.drivers().add(chrome);
         final String categoryName = user.testData().categoryDescriptions()[0];
 
-        Selenide.open(LoginPage.URL, LoginPage.class)
+        chrome.open(LoginPage.URL);
+        new LoginPage(chrome)
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage())
                 .checkThatPageLoaded();
 
-        Selenide.open(ProfilePage.URL, ProfilePage.class)
+        chrome.open(ProfilePage.URL);
+        new ProfilePage()
                 .checkCategoryExists(categoryName);
     }
 
     @User
     @Test
     void shouldUpdateProfileWithAllFieldsSet(UserJson user) {
+        browserExtension.drivers().add(chrome);
         final String newName = randomName();
 
-        ProfilePage profilePage = Selenide.open(LoginPage.URL, LoginPage.class)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
-                .checkThatPageLoaded()
-                .getHeader()
-                .toProfilePage()
-                .uploadPhotoFromClasspath("img/cat.jpeg")
-                .setName(newName)
-                .submitProfile()
-                .checkAlertMessage("Profile successfully updated");
+        chrome.open(LoginPage.URL);
+        ProfilePage profilePage =
+                new LoginPage(chrome)
+                        .fillLoginPage(user.username(), user.testData().password())
+                        .submit(new MainPage())
+                        .checkThatPageLoaded()
+                        .getHeader()
+                        .toProfilePage()
+                        .uploadPhotoFromClasspath("img/cat.jpeg")
+                        .setName(newName)
+                        .submitProfile()
+                        .checkAlertMessage("Profile successfully updated");
 
-        Selenide.refresh();
+        chrome.refresh();
 
         profilePage.checkName(newName)
                 .checkPhotoExist();
@@ -77,19 +91,22 @@ public class ProfileTest {
     @User
     @Test
     void shouldUpdateProfileWithOnlyRequiredFields(UserJson user) {
+        browserExtension.drivers().add(chrome);
         final String newName = randomName();
 
-        ProfilePage profilePage = Selenide.open(LoginPage.URL, LoginPage.class)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
-                .checkThatPageLoaded()
-                .getHeader()
-                .toProfilePage()
-                .setName(newName)
-                .submitProfile()
-                .checkAlertMessage("Profile successfully updated");
+        chrome.open(LoginPage.URL);
+        ProfilePage profilePage =
+                new LoginPage(chrome)
+                        .fillLoginPage(user.username(), user.testData().password())
+                        .submit(new MainPage())
+                        .checkThatPageLoaded()
+                        .getHeader()
+                        .toProfilePage()
+                        .setName(newName)
+                        .submitProfile()
+                        .checkAlertMessage("Profile successfully updated");
 
-        Selenide.refresh();
+        chrome.refresh();
 
         profilePage.checkName(newName);
     }
@@ -97,9 +114,11 @@ public class ProfileTest {
     @User
     @Test
     void shouldAddNewCategory(UserJson user) {
+        browserExtension.drivers().add(chrome);
         String newCategory = randomCategoryName();
 
-        Selenide.open(LoginPage.URL, LoginPage.class)
+        chrome.open(LoginPage.URL);
+        new LoginPage(chrome)
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage())
                 .checkThatPageLoaded()
@@ -124,7 +143,9 @@ public class ProfileTest {
     )
     @Test
     void shouldForbidAddingMoreThat8Categories(UserJson user) {
-        Selenide.open(LoginPage.URL, LoginPage.class)
+        browserExtension.drivers().add(chrome);
+        chrome.open(LoginPage.URL);
+        new LoginPage(chrome)
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage())
                 .checkThatPageLoaded()

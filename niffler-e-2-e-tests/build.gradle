@@ -11,7 +11,7 @@ buildscript {
         logbackVersion = '1.4.11'
         slf4jVersion = '2.0.9'
         springJdbcVersion = '6.1.12'
-        springCryptoVersion = '6.3.1'
+        springCryptoVersion = '6.3.5'
         p6spyVersion = '3.9.1'
         hibernateVersion = '6.6.0.Final'
         kafkaClientsVersion = '3.8.0'
