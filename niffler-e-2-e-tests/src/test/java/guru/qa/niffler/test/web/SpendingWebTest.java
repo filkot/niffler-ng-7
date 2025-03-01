@@ -1,10 +1,13 @@
 package guru.qa.niffler.test.web;
 
 import com.codeborne.selenide.Selenide;
+import guru.qa.niffler.condition.Bubble;
+import guru.qa.niffler.condition.Color;
 import guru.qa.niffler.jupiter.annotation.ScreenShotTest;
 import guru.qa.niffler.jupiter.annotation.Spending;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.jupiter.annotation.meta.WebTest;
+import guru.qa.niffler.model.rest.SpendJson;
 import guru.qa.niffler.model.rest.UserJson;
 import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.MainPage;
@@ -13,7 +16,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @WebTest
 public class SpendingWebTest {
@@ -126,11 +128,12 @@ public class SpendingWebTest {
     void checkBubblesWithArchivedCategoriesTest(UserJson user) {
         String archivedCategory = user.testData().spends().getLast().category().name();
 
-        List<String> expectedBubbles = user.testData().spends().stream()
-                .map(spend -> String.format("%s %.0f ₽",
-                        spend.category().name().equals(archivedCategory) ? "Archived" : spend.category().name(),
-                        spend.amount()))
-                .collect(Collectors.toList());
+        Bubble bubble1 = new Bubble(Color.yellow, String.format("%s %.0f ₽",
+                user.testData().spends().getFirst().category().name(),
+                user.testData().spends().getFirst().amount()));
+        Bubble bubble2 = new Bubble(Color.green, String.format("%s %.0f ₽",
+                "Archived",
+                user.testData().spends().getLast().amount()));
 
         Selenide.open(LoginPage.URL, LoginPage.class)
                 .fillLoginPage(user.username(), user.testData().password())
@@ -141,7 +144,33 @@ public class SpendingWebTest {
                 .getHeader()
                 .toMainPage()
                 .getStatComponent()
-                .checkBubbles(expectedBubbles);
+                .checkBubbles(bubble1, bubble2)
+                .checkBubblesInAnyOrder(bubble2, bubble1)
+                .checkBubblesContains(bubble2);
+    }
+
+
+    @User(
+            spendings = {
+                    @Spending(
+                            category = "Обучение",
+                            description = "Обучение Advanced 2.0",
+                            amount = 79990),
+                    @Spending(
+                            category = "Магазины",
+                            description = "Продукты",
+                            amount = 50000)
+            }
+    )
+    @Test
+    void checkSpendingTableTest(UserJson user) {
+        List<SpendJson> spends = user.testData().spends();
+
+        Selenide.open(LoginPage.URL, LoginPage.class)
+                .fillLoginPage(user.username(), user.testData().password())
+                .submit(new MainPage())
+                .getSpendingTable()
+                .checkTable(spends.toArray(new SpendJson[0]));
     }
 }
 

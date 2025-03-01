@@ -48,28 +48,32 @@ public class ScreenShotTestExtension implements ParameterResolver, TestExecution
 
     @Override
     public void handleTestExecutionException(ExtensionContext context, Throwable throwable) throws Throwable {
-        // Получаем аннотацию @ScreenShotTest
-        ScreenShotTest annotation = getAnnotation(context);
+        if (throwable.getMessage().contains("Screen comparison failure")) {
 
-        // Проверяем, нужно ли перезаписывать ожидаемый скриншот
-        if (annotation.rewriteExpected()) {
-            rewriteExpected(annotation);
+
+            // Получаем аннотацию @ScreenShotTest
+            ScreenShotTest annotation = getAnnotation(context);
+
+            // Проверяем, нужно ли перезаписывать ожидаемый скриншот
+            if (annotation.rewriteExpected()) {
+                rewriteExpected(annotation);
+            }
+
+            // Создаем и добавляем вложение с различиями
+            ScreenDiff screenDiff = new ScreenDiff(
+                    "data:image/png;base64," + Base64.getEncoder().encodeToString(imageToByte(getExpected())),
+                    "data:image/png;base64," + Base64.getEncoder().encodeToString(imageToByte(getActual())),
+                    "data:image/png;base64," + Base64.getEncoder().encodeToString(imageToByte(getDiff()))
+            );
+            Allure.addAttachment(
+                    "ScreenShot diff",
+                    "application/vnd.allure.image.diff",
+                    objectMapper.writeValueAsString(screenDiff)
+            );
         }
-
-        // Создаем и добавляем вложение с различиями
-        ScreenDiff screenDiff = new ScreenDiff(
-                "data:image/png;base64," + Base64.getEncoder().encodeToString(imageToByte(getExpected())),
-                "data:image/png;base64," + Base64.getEncoder().encodeToString(imageToByte(getActual())),
-                "data:image/png;base64," + Base64.getEncoder().encodeToString(imageToByte(getDiff()))
-        );
-        Allure.addAttachment(
-                "ScreenShot diff",
-                "application/vnd.allure.image.diff",
-                objectMapper.writeValueAsString(screenDiff)
-        );
-
         // Пробрасываем исключение дальше
         throw throwable;
+
     }
 
     public static BufferedImage getExpected() {
