@@ -1,15 +1,18 @@
 package guru.qa.niffler.model;
 
+import lombok.Getter;
+
+@Getter
 public enum CurrencyValues {
-    RUB, USD, EUR, KZT;
+    RUB("₽"),
+    USD("$"),
+    EUR("€"),
+    KZT("₸");
 
+    private final String icon;
 
-    public static String getIcon(CurrencyValues value) {
-        return switch (value) {
-            case RUB -> "₽";
-            case KZT -> "₸";
-            case EUR -> "€";
-            case USD -> "$";
-        };
+    CurrencyValues(String icon) {
+        this.icon = icon;
     }
+
 }

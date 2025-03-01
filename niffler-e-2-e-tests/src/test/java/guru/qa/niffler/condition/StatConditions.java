@@ -21,6 +21,7 @@ public class StatConditions {
 
     public static WebElementCondition color(Color expectedColor) {
         return new WebElementCondition("color") {
+
             @NotNull
             @Override
             public CheckResult check(Driver driver, WebElement element) {
@@ -38,6 +39,13 @@ public class StatConditions {
         return new WebElementsCondition() {
             private final String expectedRgba = Arrays.stream(expectedColors).map(c -> c.rgb).toList().toString();
 
+            private String message = "Collection check failed";
+
+            @Override
+            public String errorMessage() {
+                return message;
+            }
+
             @NotNull
             @Override
             public CheckResult check(Driver driver, List<WebElement> elements) {
@@ -45,7 +53,7 @@ public class StatConditions {
                     throw new IllegalArgumentException("No expected colors given");
                 }
                 if (elements.size() != expectedColors.length) {
-                    final String message = String.format(
+                    message = String.format(
                             "List size mismatch (expected: %s, actual: %s)", expectedColors.length, elements.size());
                     return rejected(message, elements);
                 }
@@ -63,7 +71,7 @@ public class StatConditions {
                 }
                 if (!passed) {
                     final String actualRgba = actualRgbaList.toString();
-                    final String message = String.format(
+                    message = String.format(
                             "List colors mismatch (expected: %s, actual: %s)", expectedRgba, actualRgba);
                     return rejected(message, actualRgba);
                 }
@@ -79,6 +87,13 @@ public class StatConditions {
 
     public static WebElementsCondition statBubbles(Bubble... expectedBubbles) {
         return new WebElementsCondition() {
+            private String message = "Collection check failed";
+
+            @Override
+            public String errorMessage() {
+                return message;
+            }
+
             @NotNull
             @Override
             public CheckResult check(Driver driver, List<WebElement> elements) {
@@ -86,7 +101,7 @@ public class StatConditions {
                     throw new IllegalArgumentException("No expected bubbles given");
                 }
                 if (elements.size() != expectedBubbles.length) {
-                    final String message = String.format(
+                    message = String.format(
                             "List size mismatch (expected: %s, actual: %s)", expectedBubbles.length, elements.size());
                     return rejected(message, elements);
                 }
@@ -107,7 +122,7 @@ public class StatConditions {
                 }
 
                 if (!passed) {
-                    final String message = String.format(
+                    message = String.format(
                             "List bubbles mismatch (expected: %s, actual: %s)",
                             Arrays.toString(expectedBubbles), actualDetails);
                     return rejected(message, actualDetails);
@@ -124,6 +139,13 @@ public class StatConditions {
 
     public static WebElementsCondition statBubblesInAnyOrder(Bubble... expectedBubbles) {
         return new WebElementsCondition() {
+            private String message = "Collection check failed";
+
+            @Override
+            public String errorMessage() {
+                return message;
+            }
+
             @NotNull
             @Override
             public CheckResult check(Driver driver, List<WebElement> elements) {
@@ -131,7 +153,7 @@ public class StatConditions {
                     throw new IllegalArgumentException("No expected bubbles given");
                 }
                 if (elements.size() != expectedBubbles.length) {
-                    final String message = String.format(
+                    message = String.format(
                             "List size mismatch (expected: %s, actual: %s)", expectedBubbles.length, elements.size());
                     return rejected(message, elements);
                 }
@@ -154,7 +176,7 @@ public class StatConditions {
                 }
 
                 if (!passed) {
-                    final String message = String.format(
+                    message = String.format(
                             "List mismatch in any order (expected: %s, actual: %s)",
                             Arrays.toString(expectedBubbles), actualDetails);
                     return rejected(message, actualDetails);
@@ -171,6 +193,13 @@ public class StatConditions {
 
     public static WebElementsCondition statBubblesContains(Bubble... expectedBubbles) {
         return new WebElementsCondition() {
+            private String message = "Collection check failed";
+
+            @Override
+            public String errorMessage() {
+                return message;
+            }
+
             @NotNull
             @Override
             public CheckResult check(Driver driver, List<WebElement> elements) {
@@ -196,7 +225,7 @@ public class StatConditions {
                 }
 
                 if (!passed) {
-                    final String message = String.format(
+                    message = String.format(
                             "List does not contain all expected values (expected: %s, actual: %s)",
                             Arrays.toString(expectedBubbles), actualDetails);
                     return rejected(message, actualDetails);

@@ -16,7 +16,6 @@ import java.util.List;
 
 import static com.codeborne.selenide.CheckResult.accepted;
 import static com.codeborne.selenide.CheckResult.rejected;
-import static guru.qa.niffler.model.CurrencyValues.getIcon;
 import static guru.qa.niffler.utils.DateTimeUtils.getDateWithFormat;
 
 @ParametersAreNonnullByDefault
@@ -24,6 +23,13 @@ public class SpendConditions {
 
     public static WebElementsCondition spends(SpendJson... expectedSpends) {
         return new WebElementsCondition() {
+            private String message = "Collection check failed";
+
+            @Override
+            public String errorMessage() {
+                return message;
+            }
+
             @NotNull
             @Override
             public CheckResult check(Driver driver, List<WebElement> elements) {
@@ -31,12 +37,11 @@ public class SpendConditions {
                     throw new IllegalArgumentException("No expected spends given");
                 }
                 if (elements.size() != expectedSpends.length) {
-                    final String message = String.format(
+                    message = String.format(
                             "List size mismatch (expected: %s, actual: %s)", expectedSpends.length, elements.size());
                     return rejected(message, elements);
                 }
 
-                boolean passed = true;
                 List<String> actualDetails = new ArrayList<>();
                 for (int i = 0; i < elements.size(); i++) {
                     List<WebElement> cells = elements.get(i).findElements(By.cssSelector("td"));
@@ -48,7 +53,7 @@ public class SpendConditions {
 
                     final SpendJson expectedSpend = expectedSpends[i];
                     final String expectedCategory = expectedSpend.category().name();
-                    final String icon = getIcon(expectedSpend.currency());
+                    final String icon = expectedSpend.currency().getIcon();
                     final String amount = expectedSpend.amount() % 1 == 0 ?
                             String.valueOf(expectedSpend.amount().intValue()) : expectedSpend.amount().toString();
                     final String expectedAmount = String.format("%s %s", amount, icon);
@@ -62,7 +67,7 @@ public class SpendConditions {
 
                     // Проверка категории
                     if (!actualCategory.equals(expectedCategory)) {
-                        String message = String.format(
+                        message = String.format(
                                 "Spend category mismatch (expected: %s, actual: %s)",
                                 expectedCategory, actualCategory
                         );
@@ -71,7 +76,7 @@ public class SpendConditions {
 
                     // Проверка даты
                     if (!actualDate.equals(expectedDate)) {
-                        String message = String.format(
+                        message = String.format(
                                 "Spend date mismatch (expected: %s, actual: %s)",
                                 expectedDate, actualDate
                         );
@@ -80,7 +85,7 @@ public class SpendConditions {
 
                     // Проверка валюты и суммы
                     if (!actualAmount.equals(expectedAmount)) {
-                        String message = String.format(
+                        message = String.format(
                                 "Spend amount mismatch (expected: %s, actual: %s)",
                                 expectedAmount, actualAmount
                         );
@@ -89,7 +94,7 @@ public class SpendConditions {
 
                     // Проверка описания
                     if (!actualDescription.equals(expectedDescription)) {
-                        String message = String.format(
+                        message = String.format(
                                 "Spend description mismatch (expected: %s, actual: %s)",
                                 expectedDescription, actualDescription
                         );
