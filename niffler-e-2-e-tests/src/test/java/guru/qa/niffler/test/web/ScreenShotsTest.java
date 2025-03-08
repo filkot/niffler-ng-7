@@ -1,21 +1,28 @@
 package guru.qa.niffler.test.web;
 
-import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.SelenideDriver;
 import guru.qa.niffler.jupiter.annotation.ScreenShotTest;
 import guru.qa.niffler.jupiter.annotation.Spending;
 import guru.qa.niffler.jupiter.annotation.User;
-import guru.qa.niffler.jupiter.annotation.meta.WebTest;
+import guru.qa.niffler.jupiter.extension.BrowserExtension;
 import guru.qa.niffler.model.rest.UserJson;
 import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.MainPage;
 import guru.qa.niffler.page.ProfilePage;
 import guru.qa.niffler.page.component.StatComponent;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-@WebTest
+import static guru.qa.niffler.jupiter.convector.Browser.chromeConfig;
+
+
 public class ScreenShotsTest {
+
+    @RegisterExtension
+    private final BrowserExtension browserExtension = new BrowserExtension();
+    private final SelenideDriver chrome = new SelenideDriver(chromeConfig);
 
 
     @User(
@@ -27,7 +34,9 @@ public class ScreenShotsTest {
     )
     @ScreenShotTest(value = "img/expected-stat.png", rewriteExpected = true)
     void checkStatComponentTest(UserJson user, BufferedImage expected) throws IOException {
-        Selenide.open(LoginPage.URL, LoginPage.class)
+        browserExtension.addDriver(chrome);
+        chrome.open(LoginPage.URL);
+        new LoginPage(chrome)
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage());
 
@@ -39,8 +48,10 @@ public class ScreenShotsTest {
     @User
     @ScreenShotTest(value = "img/expected-avatar.png")
     void checkAvatarTest(UserJson user, BufferedImage expected) throws IOException {
+        browserExtension.addDriver(chrome);
 
-        Selenide.open(LoginPage.URL, LoginPage.class)
+        chrome.open(LoginPage.URL);
+        new LoginPage(chrome)
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage())
                 .getHeader()
@@ -49,7 +60,7 @@ public class ScreenShotsTest {
                 .submitProfile()
                 .checkAlertMessage("Profile successfully updated");
 
-        Selenide.refresh();
+        chrome.refresh();
         new ProfilePage().checkAvatarImage(expected);
     }
 
@@ -62,7 +73,10 @@ public class ScreenShotsTest {
     )
     @ScreenShotTest(value = "img/expected-edited-stat.png", rewriteExpected = true)
     void checkStatComponentAfterEditSpendingTest(UserJson user, BufferedImage expected) throws IOException {
-        Selenide.open(LoginPage.URL, LoginPage.class)
+        browserExtension.addDriver(chrome);
+
+        chrome.open(LoginPage.URL);
+        new LoginPage(chrome)
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage())
                 .getSpendingTable()
@@ -88,7 +102,10 @@ public class ScreenShotsTest {
     )
     @ScreenShotTest(value = "img/expected-stat.png", rewriteExpected = true)
     void checkStatComponentAfterDeletedSpendingTest(UserJson user, BufferedImage expected) throws IOException {
-        Selenide.open(LoginPage.URL, LoginPage.class)
+        browserExtension.addDriver(chrome);
+
+        chrome.open(LoginPage.URL);
+        new LoginPage(chrome)
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage())
                 .getSpendingTable()
@@ -112,7 +129,10 @@ public class ScreenShotsTest {
     )
     @ScreenShotTest(value = "img/expected-archived-stat.png", rewriteExpected = true)
     void checkStatComponentWithArchivedCategoriesTest(UserJson user, BufferedImage expected) throws IOException {
-        Selenide.open(LoginPage.URL, LoginPage.class)
+        browserExtension.addDriver(chrome);
+
+        chrome.open(LoginPage.URL);
+        new LoginPage(chrome)
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage())
                 .getHeader()

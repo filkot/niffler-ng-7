@@ -12,29 +12,23 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BrowserExtension implements
+public class NonStaticBrowsersExtension implements
         BeforeEachCallback,
         AfterEachCallback,
         TestExecutionExceptionHandler,
         LifecycleMethodExecutionExceptionHandler {
 
-    private final List<SelenideDriver> drivers = new ArrayList<>();
+    // Используем ThreadLocal для хранения драйверов каждого теста
+    private final ThreadLocal<List<SelenideDriver>> drivers = ThreadLocal.withInitial(ArrayList::new);
+
 
     public void addDriver(SelenideDriver driver) {
-        drivers.add(driver);
-    }
-
-    @Override
-    public void afterEach(ExtensionContext context) throws Exception {
-        for (SelenideDriver driver : drivers) {
-            if (driver.hasWebDriverStarted()) {
-                driver.close();
-            }
-        }
+        drivers.get().add(driver);
     }
 
     @Override
     public void beforeEach(ExtensionContext context) throws Exception {
+        // Инициализация Allure Selenide Listener
         SelenideLogger.addListener("Allure-selenide", new AllureSelenide()
                 .savePageSource(false)
                 .screenshots(false)
@@ -42,28 +36,44 @@ public class BrowserExtension implements
     }
 
     @Override
+    public void afterEach(ExtensionContext context) throws Exception {
+        // Закрываем все драйверы текущего теста
+        for (SelenideDriver driver : drivers.get()) {
+            if (driver.hasWebDriverStarted()) {
+                driver.close();
+            }
+        }
+        // Очищаем список драйверов для текущего теста
+        drivers.remove();
+    }
+
+    @Override
     public void handleTestExecutionException(ExtensionContext context, Throwable throwable) throws Throwable {
+        // Делаем скриншот при возникновении исключения
         doScreenshot();
         throw throwable;
     }
 
     @Override
     public void handleBeforeEachMethodExecutionException(ExtensionContext context, Throwable throwable) throws Throwable {
+        // Делаем скриншот при возникновении исключения
         doScreenshot();
         throw throwable;
     }
 
     @Override
     public void handleAfterEachMethodExecutionException(ExtensionContext context, Throwable throwable) throws Throwable {
+        // Делаем скриншот при возникновении исключения
         doScreenshot();
         throw throwable;
     }
 
     private void doScreenshot() {
-        for (SelenideDriver driver : drivers) {
+        // Делаем скриншот для каждого драйвера текущего теста
+        for (SelenideDriver driver : drivers.get()) {
             if (driver.hasWebDriverStarted()) {
                 Allure.addAttachment(
-                        "Screen on fail fro browser " + driver.getSessionId(),
+                        "Screen on fail for browser " + driver.getSessionId(),
                         new ByteArrayInputStream(
                                 ((TakesScreenshot) driver.getWebDriver()).getScreenshotAs(OutputType.BYTES)
                         )
