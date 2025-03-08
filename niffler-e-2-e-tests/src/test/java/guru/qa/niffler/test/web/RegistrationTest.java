@@ -7,8 +7,8 @@ import guru.qa.niffler.page.MainPage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import static guru.qa.niffler.jupiter.convector.Browser.chromeConfig;
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
-import static guru.qa.niffler.utils.SelenideUtils.chromeConfig;
 
 public class RegistrationTest {
 
@@ -18,7 +18,7 @@ public class RegistrationTest {
 
     @Test
     void shouldRegisterNewUser() {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         String newUsername = randomUsername();
         String password = "12345";
         chrome.open(LoginPage.URL);
@@ -33,7 +33,7 @@ public class RegistrationTest {
 
     @Test
     void shouldNotRegisterUserWithExistingUsername() {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         String existingUsername = "duck";
         String password = "12345";
 
@@ -47,7 +47,7 @@ public class RegistrationTest {
 
     @Test
     void shouldShowErrorIfPasswordAndConfirmPasswordAreNotEqual() {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         String newUsername = randomUsername();
         String password = "12345";
 

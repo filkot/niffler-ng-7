@@ -11,9 +11,9 @@ import guru.qa.niffler.page.ProfilePage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import static guru.qa.niffler.jupiter.convector.Browser.chromeConfig;
 import static guru.qa.niffler.utils.RandomDataUtils.randomCategoryName;
 import static guru.qa.niffler.utils.RandomDataUtils.randomName;
-import static guru.qa.niffler.utils.SelenideUtils.chromeConfig;
 
 public class ProfileTest {
 
@@ -28,7 +28,7 @@ public class ProfileTest {
     )
     @Test
     void archivedCategoryShouldPresentInCategoriesList(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         final String categoryName = user.testData().categoryDescriptions()[0];
 
         chrome.open(LoginPage.URL);
@@ -49,7 +49,7 @@ public class ProfileTest {
     )
     @Test
     void activeCategoryShouldPresentInCategoriesList(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         final String categoryName = user.testData().categoryDescriptions()[0];
 
         chrome.open(LoginPage.URL);
@@ -66,7 +66,7 @@ public class ProfileTest {
     @User
     @Test
     void shouldUpdateProfileWithAllFieldsSet(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         final String newName = randomName();
 
         chrome.open(LoginPage.URL);
@@ -91,7 +91,7 @@ public class ProfileTest {
     @User
     @Test
     void shouldUpdateProfileWithOnlyRequiredFields(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         final String newName = randomName();
 
         chrome.open(LoginPage.URL);
@@ -114,7 +114,7 @@ public class ProfileTest {
     @User
     @Test
     void shouldAddNewCategory(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         String newCategory = randomCategoryName();
 
         chrome.open(LoginPage.URL);
@@ -143,7 +143,7 @@ public class ProfileTest {
     )
     @Test
     void shouldForbidAddingMoreThat8Categories(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         chrome.open(LoginPage.URL);
         new LoginPage(chrome)
                 .fillLoginPage(user.username(), user.testData().password())

@@ -15,7 +15,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import static guru.qa.niffler.utils.SelenideUtils.chromeConfig;
+import static guru.qa.niffler.jupiter.convector.Browser.chromeConfig;
+
 
 public class ScreenShotsTest {
 
@@ -33,7 +34,7 @@ public class ScreenShotsTest {
     )
     @ScreenShotTest(value = "img/expected-stat.png", rewriteExpected = true)
     void checkStatComponentTest(UserJson user, BufferedImage expected) throws IOException {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         chrome.open(LoginPage.URL);
         new LoginPage(chrome)
                 .fillLoginPage(user.username(), user.testData().password())
@@ -47,7 +48,7 @@ public class ScreenShotsTest {
     @User
     @ScreenShotTest(value = "img/expected-avatar.png")
     void checkAvatarTest(UserJson user, BufferedImage expected) throws IOException {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
 
         chrome.open(LoginPage.URL);
         new LoginPage(chrome)
@@ -72,7 +73,7 @@ public class ScreenShotsTest {
     )
     @ScreenShotTest(value = "img/expected-edited-stat.png", rewriteExpected = true)
     void checkStatComponentAfterEditSpendingTest(UserJson user, BufferedImage expected) throws IOException {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
 
         chrome.open(LoginPage.URL);
         new LoginPage(chrome)
@@ -101,7 +102,7 @@ public class ScreenShotsTest {
     )
     @ScreenShotTest(value = "img/expected-stat.png", rewriteExpected = true)
     void checkStatComponentAfterDeletedSpendingTest(UserJson user, BufferedImage expected) throws IOException {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
 
         chrome.open(LoginPage.URL);
         new LoginPage(chrome)
@@ -128,7 +129,7 @@ public class ScreenShotsTest {
     )
     @ScreenShotTest(value = "img/expected-archived-stat.png", rewriteExpected = true)
     void checkStatComponentWithArchivedCategoriesTest(UserJson user, BufferedImage expected) throws IOException {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
 
         chrome.open(LoginPage.URL);
         new LoginPage(chrome)

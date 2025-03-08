@@ -20,8 +20,8 @@ public class BrowserExtension implements
 
     private final List<SelenideDriver> drivers = new ArrayList<>();
 
-    public List<SelenideDriver> drivers() {
-        return drivers;
+    public void addDriver(SelenideDriver driver) {
+        drivers.add(driver);
     }
 
     @Override

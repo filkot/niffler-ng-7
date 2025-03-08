@@ -14,8 +14,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.converter.ConvertWith;
 import org.junit.jupiter.params.provider.EnumSource;
 
+import static guru.qa.niffler.jupiter.convector.Browser.chromeConfig;
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
-import static guru.qa.niffler.utils.SelenideUtils.chromeConfig;
 
 public class LoginTest {
 
@@ -27,7 +27,7 @@ public class LoginTest {
     @User
     @Test
     void mainPageShouldBeDisplayedAfterSuccessLogin(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
 
         chrome.open(LoginPage.URL);
         new LoginPage(chrome)
@@ -38,7 +38,7 @@ public class LoginTest {
 
     @Test
     void userShouldStayOnLoginPageAfterLoginWithBadCredentials() {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
 
         chrome.open(LoginPage.URL);
         new LoginPage(chrome)
@@ -52,7 +52,7 @@ public class LoginTest {
     @EnumSource(Browser.class)
     void userShouldStayOnLoginPageAfterLoginWithBadCredentialsMultiBrowsers(
             @ConvertWith(BrowserConverter.class) SelenideDriver driver) {
-        browserExtension.drivers().add(driver);
+        browserExtension.addDriver(driver);
 
         driver.open(LoginPage.URL);
         new LoginPage(driver)

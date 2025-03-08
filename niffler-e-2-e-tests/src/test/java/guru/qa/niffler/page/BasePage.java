@@ -18,9 +18,9 @@ public abstract class BasePage<T extends BasePage<?>> {
 
     public abstract T checkThatPageLoaded();
 
-    protected BasePage(SelenideDriver chrome) {
-        this.alert = chrome.$(".MuiSnackbar-root");
-        this.formErrors = chrome.$$("p.Mui-error, .input__helper-text");
+    protected BasePage(SelenideDriver driver) {
+        this.alert = driver.$(".MuiSnackbar-root");
+        this.formErrors = driver.$$("p.Mui-error, .input__helper-text");
     }
 
     protected BasePage() {

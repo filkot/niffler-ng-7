@@ -11,7 +11,8 @@ import guru.qa.niffler.page.PeoplePage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static guru.qa.niffler.utils.SelenideUtils.chromeConfig;
+import static guru.qa.niffler.jupiter.convector.Browser.chromeConfig;
+
 
 public class FriendsWebTest {
 
@@ -22,7 +23,7 @@ public class FriendsWebTest {
     @User(friends = 1)
     @Test
     void friendShouldBePresentInFriendsTable(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         final String friendUsername = user.testData().friendsUsernames()[0];
 
         chrome.open(LoginPage.URL);
@@ -37,7 +38,7 @@ public class FriendsWebTest {
     @User
     @Test
     void friendsTableShouldBeEmptyForNewUser(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         chrome.open(LoginPage.URL);
         new LoginPage(chrome)
                 .fillLoginPage(user.username(), user.testData().password())
@@ -50,7 +51,7 @@ public class FriendsWebTest {
     @User(incomeInvitations = 1)
     @Test
     void incomeInvitationBePresentInFriendsTable(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         final String incomeInvitationUsername = user.testData().incomeInvitationsUsernames()[0];
 
         chrome.open(LoginPage.URL);
@@ -65,7 +66,7 @@ public class FriendsWebTest {
     @User(outcomeInvitations = 1)
     @Test
     void outcomeInvitationBePresentInAllPeoplesTable(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         final String outcomeInvitationUsername = user.testData().outcomeInvitationsUsernames()[0];
 
         chrome.open(LoginPage.URL);
@@ -80,7 +81,7 @@ public class FriendsWebTest {
     @User(friends = 1)
     @Test
     void shouldRemoveFriend(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         final String userToRemove = user.testData().friendsUsernames()[0];
 
         chrome.open(LoginPage.URL);
@@ -96,7 +97,7 @@ public class FriendsWebTest {
     @User(incomeInvitations = 1)
     @Test
     void shouldAcceptInvitation(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         final String userToAccept = user.testData().incomeInvitationsUsernames()[0];
 
         chrome.open(LoginPage.URL);
@@ -118,7 +119,7 @@ public class FriendsWebTest {
     @User(incomeInvitations = 1)
     @Test
     void shouldDeclineInvitation(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         final String userToDecline = user.testData().incomeInvitationsUsernames()[0];
 
         chrome.open(LoginPage.URL);

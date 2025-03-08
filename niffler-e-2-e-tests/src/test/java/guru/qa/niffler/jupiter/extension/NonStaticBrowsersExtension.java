@@ -21,9 +21,9 @@ public class NonStaticBrowsersExtension implements
     // Используем ThreadLocal для хранения драйверов каждого теста
     private final ThreadLocal<List<SelenideDriver>> drivers = ThreadLocal.withInitial(ArrayList::new);
 
-    // Метод для получения драйверов текущего теста
-    public List<SelenideDriver> drivers() {
-        return drivers.get();
+
+    public void addDriver(SelenideDriver driver) {
+        drivers.get().add(driver);
     }
 
     @Override

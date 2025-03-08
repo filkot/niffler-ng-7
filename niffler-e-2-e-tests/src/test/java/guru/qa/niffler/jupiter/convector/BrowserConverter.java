@@ -4,8 +4,9 @@ import com.codeborne.selenide.SelenideDriver;
 import org.junit.jupiter.params.converter.ArgumentConversionException;
 import org.junit.jupiter.params.converter.SimpleArgumentConverter;
 
-import static guru.qa.niffler.utils.SelenideUtils.chromeConfig;
-import static guru.qa.niffler.utils.SelenideUtils.firefoxConfig;
+import static guru.qa.niffler.jupiter.convector.Browser.chromeConfig;
+import static guru.qa.niffler.jupiter.convector.Browser.firefoxConfig;
+
 
 public class BrowserConverter extends SimpleArgumentConverter {
 

@@ -18,7 +18,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import java.util.Date;
 import java.util.List;
 
-import static guru.qa.niffler.utils.SelenideUtils.chromeConfig;
+import static guru.qa.niffler.jupiter.convector.Browser.chromeConfig;
+
 
 public class SpendingWebTest {
 
@@ -35,7 +36,7 @@ public class SpendingWebTest {
     )
     @Test
     void categoryDescriptionShouldBeChangedFromTable(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         final String newDescription = "Обучение Niffler Next Generation";
 
         chrome.open(LoginPage.URL);
@@ -54,7 +55,7 @@ public class SpendingWebTest {
     @User
     @Test
     void shouldAddNewSpending(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         String category = "Friends";
         int amount = 100;
         Date currentDate = new Date();
@@ -80,7 +81,7 @@ public class SpendingWebTest {
     @User
     @Test
     void shouldNotAddSpendingWithEmptyCategory(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
 
         chrome.open(LoginPage.URL);
         new LoginPage(chrome)
@@ -97,7 +98,7 @@ public class SpendingWebTest {
     @User
     @Test
     void shouldNotAddSpendingWithEmptyAmount(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
 
         chrome.open(LoginPage.URL);
         new LoginPage(chrome)
@@ -120,7 +121,7 @@ public class SpendingWebTest {
     )
     @Test
     void deleteSpendingTest(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
 
         chrome.open(LoginPage.URL);
         new LoginPage(chrome)
@@ -145,7 +146,7 @@ public class SpendingWebTest {
     )
     @ScreenShotTest(value = "img/expected-archived-stat.png", rewriteExpected = true)
     void checkBubblesWithArchivedCategoriesTest(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         String archivedCategory = user.testData().spends().getLast().category().name();
 
         Bubble bubble1 = new Bubble(Color.yellow, String.format("%s %.0f ₽",
@@ -185,7 +186,7 @@ public class SpendingWebTest {
     )
     @Test
     void checkSpendingTableTest(UserJson user) {
-        browserExtension.drivers().add(chrome);
+        browserExtension.addDriver(chrome);
         List<SpendJson> spends = user.testData().spends();
 
         chrome.open(LoginPage.URL);
