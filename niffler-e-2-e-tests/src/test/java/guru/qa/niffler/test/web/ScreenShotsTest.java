@@ -1,28 +1,21 @@
 package guru.qa.niffler.test.web;
 
-import com.codeborne.selenide.SelenideDriver;
+import com.codeborne.selenide.Selenide;
+import guru.qa.niffler.jupiter.annotation.ApiLogin;
 import guru.qa.niffler.jupiter.annotation.ScreenShotTest;
 import guru.qa.niffler.jupiter.annotation.Spending;
 import guru.qa.niffler.jupiter.annotation.User;
-import guru.qa.niffler.jupiter.extension.BrowserExtension;
+import guru.qa.niffler.jupiter.annotation.meta.WebTest;
 import guru.qa.niffler.model.rest.UserJson;
-import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.MainPage;
 import guru.qa.niffler.page.ProfilePage;
 import guru.qa.niffler.page.component.StatComponent;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import static guru.qa.niffler.jupiter.convector.Browser.chromeConfig;
-
-
+@WebTest
 public class ScreenShotsTest {
-
-    @RegisterExtension
-    private final BrowserExtension browserExtension = new BrowserExtension();
-    private final SelenideDriver chrome = new SelenideDriver(chromeConfig);
 
 
     @User(
@@ -32,35 +25,26 @@ public class ScreenShotsTest {
                     amount = 79990
             )
     )
+    @ApiLogin
     @ScreenShotTest(value = "img/expected-stat.png", rewriteExpected = true)
-    void checkStatComponentTest(UserJson user, BufferedImage expected) throws IOException {
-        browserExtension.addDriver(chrome);
-        chrome.open(LoginPage.URL);
-        new LoginPage(chrome)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage());
-
-        StatComponent statComponent = new MainPage().getStatComponent();
+    void checkStatComponentTest(BufferedImage expected) throws IOException {
+        StatComponent statComponent =
+                Selenide.open(MainPage.URL, MainPage.class).getStatComponent();
         statComponent.checkStatImage(expected);
     }
 
 
     @User
+    @ApiLogin
     @ScreenShotTest(value = "img/expected-avatar.png")
-    void checkAvatarTest(UserJson user, BufferedImage expected) throws IOException {
-        browserExtension.addDriver(chrome);
+    void checkAvatarTest(BufferedImage expected) throws IOException {
 
-        chrome.open(LoginPage.URL);
-        new LoginPage(chrome)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
-                .getHeader()
-                .toProfilePage()
+        Selenide.open(ProfilePage.URL, ProfilePage.class)
                 .uploadPhotoFromClasspath("img/cat.jpeg")
                 .submitProfile()
                 .checkAlertMessage("Profile successfully updated");
 
-        chrome.refresh();
+        Selenide.refresh();
         new ProfilePage().checkAvatarImage(expected);
     }
 
@@ -71,14 +55,10 @@ public class ScreenShotsTest {
                     amount = 79990
             )
     )
+    @ApiLogin
     @ScreenShotTest(value = "img/expected-edited-stat.png", rewriteExpected = true)
     void checkStatComponentAfterEditSpendingTest(UserJson user, BufferedImage expected) throws IOException {
-        browserExtension.addDriver(chrome);
-
-        chrome.open(LoginPage.URL);
-        new LoginPage(chrome)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
+        Selenide.open(MainPage.URL, MainPage.class)
                 .getSpendingTable()
                 .editSpending(user.testData().spends().getFirst().description())
                 .setNewSpendingAmount(50000)
@@ -100,18 +80,17 @@ public class ScreenShotsTest {
                             amount = 79990)
             }
     )
+    @ApiLogin
     @ScreenShotTest(value = "img/expected-stat.png", rewriteExpected = true)
     void checkStatComponentAfterDeletedSpendingTest(UserJson user, BufferedImage expected) throws IOException {
-        browserExtension.addDriver(chrome);
-
-        chrome.open(LoginPage.URL);
-        new LoginPage(chrome)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
+        MainPage mainPage = Selenide.open(MainPage.URL, MainPage.class);
+        mainPage
                 .getSpendingTable()
                 .deleteSpending(user.testData().spends().getFirst().description());
 
-        new MainPage().getStatComponent()
+        Selenide.refresh();
+
+        mainPage.getStatComponent()
                 .checkStatImage(expected);
     }
 
@@ -127,16 +106,10 @@ public class ScreenShotsTest {
                             amount = 50000)
             }
     )
+    @ApiLogin
     @ScreenShotTest(value = "img/expected-archived-stat.png", rewriteExpected = true)
     void checkStatComponentWithArchivedCategoriesTest(UserJson user, BufferedImage expected) throws IOException {
-        browserExtension.addDriver(chrome);
-
-        chrome.open(LoginPage.URL);
-        new LoginPage(chrome)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
-                .getHeader()
-                .toProfilePage()
+        Selenide.open(ProfilePage.URL, ProfilePage.class)
                 .archiveCategory(user.testData().spends().getLast().category().name())
                 .getHeader()
                 .toMainPage()

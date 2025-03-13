@@ -1,44 +1,32 @@
 package guru.qa.niffler.test.web;
 
-import com.codeborne.selenide.SelenideDriver;
+import com.codeborne.selenide.Selenide;
+import guru.qa.niffler.jupiter.annotation.ApiLogin;
 import guru.qa.niffler.jupiter.annotation.Category;
 import guru.qa.niffler.jupiter.annotation.User;
-import guru.qa.niffler.jupiter.extension.BrowserExtension;
+import guru.qa.niffler.jupiter.annotation.meta.WebTest;
 import guru.qa.niffler.model.rest.UserJson;
-import guru.qa.niffler.page.LoginPage;
-import guru.qa.niffler.page.MainPage;
 import guru.qa.niffler.page.ProfilePage;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static guru.qa.niffler.jupiter.convector.Browser.chromeConfig;
 import static guru.qa.niffler.utils.RandomDataUtils.randomCategoryName;
 import static guru.qa.niffler.utils.RandomDataUtils.randomName;
 
+@WebTest
 public class ProfileTest {
-
-    @RegisterExtension
-    private final BrowserExtension browserExtension = new BrowserExtension();
-    private final SelenideDriver chrome = new SelenideDriver(chromeConfig);
 
     @User(
             categories = @Category(
                     archived = true
             )
     )
+    @ApiLogin
     @Test
     void archivedCategoryShouldPresentInCategoriesList(UserJson user) {
-        browserExtension.addDriver(chrome);
         final String categoryName = user.testData().categoryDescriptions()[0];
 
-        chrome.open(LoginPage.URL);
-        new LoginPage(chrome)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
-                .checkThatPageLoaded();
 
-        chrome.open(ProfilePage.URL);
-        new ProfilePage()
+        Selenide.open(ProfilePage.URL, ProfilePage.class)
                 .checkArchivedCategoryExists(categoryName);
     }
 
@@ -47,83 +35,57 @@ public class ProfileTest {
                     archived = false
             )
     )
+    @ApiLogin
     @Test
     void activeCategoryShouldPresentInCategoriesList(UserJson user) {
-        browserExtension.addDriver(chrome);
         final String categoryName = user.testData().categoryDescriptions()[0];
 
-        chrome.open(LoginPage.URL);
-        new LoginPage(chrome)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
-                .checkThatPageLoaded();
-
-        chrome.open(ProfilePage.URL);
-        new ProfilePage()
+        Selenide.open(ProfilePage.URL, ProfilePage.class)
                 .checkCategoryExists(categoryName);
+
     }
 
     @User
+    @ApiLogin
     @Test
-    void shouldUpdateProfileWithAllFieldsSet(UserJson user) {
-        browserExtension.addDriver(chrome);
+    void shouldUpdateProfileWithAllFieldsSet() {
         final String newName = randomName();
 
-        chrome.open(LoginPage.URL);
-        ProfilePage profilePage =
-                new LoginPage(chrome)
-                        .fillLoginPage(user.username(), user.testData().password())
-                        .submit(new MainPage())
-                        .checkThatPageLoaded()
-                        .getHeader()
-                        .toProfilePage()
-                        .uploadPhotoFromClasspath("img/cat.jpeg")
-                        .setName(newName)
-                        .submitProfile()
-                        .checkAlertMessage("Profile successfully updated");
+        ProfilePage profilePage = Selenide.open(ProfilePage.URL, ProfilePage.class)
+                .uploadPhotoFromClasspath("img/cat.jpeg")
+                .setName(newName)
+                .submitProfile()
+                .checkAlertMessage("Profile successfully updated");
 
-        chrome.refresh();
+        Selenide.refresh();
 
         profilePage.checkName(newName)
                 .checkPhotoExist();
     }
 
     @User
+    @ApiLogin
     @Test
-    void shouldUpdateProfileWithOnlyRequiredFields(UserJson user) {
-        browserExtension.addDriver(chrome);
+    void shouldUpdateProfileWithOnlyRequiredFields() {
         final String newName = randomName();
 
-        chrome.open(LoginPage.URL);
-        ProfilePage profilePage =
-                new LoginPage(chrome)
-                        .fillLoginPage(user.username(), user.testData().password())
-                        .submit(new MainPage())
-                        .checkThatPageLoaded()
-                        .getHeader()
-                        .toProfilePage()
-                        .setName(newName)
-                        .submitProfile()
-                        .checkAlertMessage("Profile successfully updated");
+        ProfilePage profilePage = Selenide.open(ProfilePage.URL, ProfilePage.class)
+                .setName(newName)
+                .submitProfile()
+                .checkAlertMessage("Profile successfully updated");
 
-        chrome.refresh();
+        Selenide.refresh();
 
         profilePage.checkName(newName);
     }
 
     @User
+    @ApiLogin
     @Test
-    void shouldAddNewCategory(UserJson user) {
-        browserExtension.addDriver(chrome);
+    void shouldAddNewCategory() {
         String newCategory = randomCategoryName();
 
-        chrome.open(LoginPage.URL);
-        new LoginPage(chrome)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
-                .checkThatPageLoaded()
-                .getHeader()
-                .toProfilePage()
+        Selenide.open(ProfilePage.URL, ProfilePage.class)
                 .addCategory(newCategory)
                 .checkAlertMessage("You've added new category:")
                 .checkCategoryExists(newCategory);
@@ -141,16 +103,10 @@ public class ProfileTest {
                     @Category(name = "Books")
             }
     )
+    @ApiLogin
     @Test
-    void shouldForbidAddingMoreThat8Categories(UserJson user) {
-        browserExtension.addDriver(chrome);
-        chrome.open(LoginPage.URL);
-        new LoginPage(chrome)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
-                .checkThatPageLoaded()
-                .getHeader()
-                .toProfilePage()
+    void shouldForbidAddingMoreThat8Categories() {
+        Selenide.open(ProfilePage.URL, ProfilePage.class)
                 .checkThatCategoryInputDisabled();
     }
 }

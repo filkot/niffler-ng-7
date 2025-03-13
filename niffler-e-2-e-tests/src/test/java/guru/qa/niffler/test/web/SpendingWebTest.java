@@ -1,31 +1,26 @@
 package guru.qa.niffler.test.web;
 
-import com.codeborne.selenide.SelenideDriver;
+import com.codeborne.selenide.Selenide;
 import guru.qa.niffler.condition.Bubble;
 import guru.qa.niffler.condition.Color;
+import guru.qa.niffler.jupiter.annotation.ApiLogin;
 import guru.qa.niffler.jupiter.annotation.ScreenShotTest;
 import guru.qa.niffler.jupiter.annotation.Spending;
 import guru.qa.niffler.jupiter.annotation.User;
-import guru.qa.niffler.jupiter.extension.BrowserExtension;
+import guru.qa.niffler.jupiter.annotation.meta.WebTest;
 import guru.qa.niffler.model.rest.SpendJson;
 import guru.qa.niffler.model.rest.UserJson;
-import guru.qa.niffler.page.LoginPage;
+import guru.qa.niffler.page.EditSpendingPage;
 import guru.qa.niffler.page.MainPage;
+import guru.qa.niffler.page.ProfilePage;
 import guru.qa.niffler.utils.RandomDataUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.Date;
 import java.util.List;
 
-import static guru.qa.niffler.jupiter.convector.Browser.chromeConfig;
-
-
+@WebTest
 public class SpendingWebTest {
-
-    @RegisterExtension
-    private final BrowserExtension browserExtension = new BrowserExtension();
-    private final SelenideDriver chrome = new SelenideDriver(chromeConfig);
 
     @User(
             spendings = @Spending(
@@ -34,15 +29,12 @@ public class SpendingWebTest {
                     amount = 79990
             )
     )
+    @ApiLogin
     @Test
     void categoryDescriptionShouldBeChangedFromTable(UserJson user) {
-        browserExtension.addDriver(chrome);
         final String newDescription = "Обучение Niffler Next Generation";
 
-        chrome.open(LoginPage.URL);
-        new LoginPage(chrome)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
+        Selenide.open(MainPage.URL, MainPage.class)
                 .getSpendingTable()
                 .editSpending("Обучение Advanced 2.0")
                 .setNewSpendingDescription(newDescription)
@@ -53,20 +45,15 @@ public class SpendingWebTest {
     }
 
     @User
+    @ApiLogin
     @Test
     void shouldAddNewSpending(UserJson user) {
-        browserExtension.addDriver(chrome);
         String category = "Friends";
         int amount = 100;
         Date currentDate = new Date();
         String description = RandomDataUtils.randomSentence(3);
 
-        chrome.open(LoginPage.URL);
-        new LoginPage(chrome)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
-                .getHeader()
-                .addSpendingPage()
+        Selenide.open(EditSpendingPage.URL, EditSpendingPage.class)
                 .setNewSpendingCategory(category)
                 .setNewSpendingAmount(amount)
                 .setNewSpendingDate(currentDate)
@@ -79,16 +66,10 @@ public class SpendingWebTest {
     }
 
     @User
+    @ApiLogin
     @Test
     void shouldNotAddSpendingWithEmptyCategory(UserJson user) {
-        browserExtension.addDriver(chrome);
-
-        chrome.open(LoginPage.URL);
-        new LoginPage(chrome)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
-                .getHeader()
-                .addSpendingPage()
+        Selenide.open(EditSpendingPage.URL, EditSpendingPage.class)
                 .setNewSpendingAmount(100)
                 .setNewSpendingDate(new Date())
                 .saveSpending()
@@ -96,16 +77,10 @@ public class SpendingWebTest {
     }
 
     @User
+    @ApiLogin
     @Test
     void shouldNotAddSpendingWithEmptyAmount(UserJson user) {
-        browserExtension.addDriver(chrome);
-
-        chrome.open(LoginPage.URL);
-        new LoginPage(chrome)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
-                .getHeader()
-                .addSpendingPage()
+        Selenide.open(EditSpendingPage.URL, EditSpendingPage.class)
                 .setNewSpendingCategory("Friends")
                 .setNewSpendingDate(new Date())
                 .saveSpending()
@@ -119,14 +94,10 @@ public class SpendingWebTest {
                     amount = 79990
             )
     )
+    @ApiLogin
     @Test
     void deleteSpendingTest(UserJson user) {
-        browserExtension.addDriver(chrome);
-
-        chrome.open(LoginPage.URL);
-        new LoginPage(chrome)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
+        Selenide.open(MainPage.URL, MainPage.class)
                 .getSpendingTable()
                 .deleteSpending(user.testData().spends().getFirst().description())
                 .checkTableSize(0);
@@ -144,9 +115,9 @@ public class SpendingWebTest {
                             amount = 50000)
             }
     )
+    @ApiLogin
     @ScreenShotTest(value = "img/expected-archived-stat.png", rewriteExpected = true)
     void checkBubblesWithArchivedCategoriesTest(UserJson user) {
-        browserExtension.addDriver(chrome);
         String archivedCategory = user.testData().spends().getLast().category().name();
 
         Bubble bubble1 = new Bubble(Color.yellow, String.format("%s %.0f ₽",
@@ -156,12 +127,7 @@ public class SpendingWebTest {
                 "Archived",
                 user.testData().spends().getLast().amount()));
 
-        chrome.open(LoginPage.URL);
-        new LoginPage(chrome)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
-                .getHeader()
-                .toProfilePage()
+        Selenide.open(ProfilePage.URL, ProfilePage.class)
                 .archiveCategory(archivedCategory)
                 .getHeader()
                 .toMainPage()
@@ -184,17 +150,13 @@ public class SpendingWebTest {
                             amount = 50000)
             }
     )
+    @ApiLogin
     @Test
     void checkSpendingTableTest(UserJson user) {
-        browserExtension.addDriver(chrome);
         List<SpendJson> spends = user.testData().spends();
 
-        chrome.open(LoginPage.URL);
-        new LoginPage(chrome)
-                .fillLoginPage(user.username(), user.testData().password())
-                .submit(new MainPage())
+        Selenide.open(MainPage.URL, MainPage.class)
                 .getSpendingTable()
                 .checkTable(spends.toArray(new SpendJson[0]));
     }
 }
-

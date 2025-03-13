@@ -11,6 +11,8 @@ import retrofit2.Response;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -84,5 +86,52 @@ public class SpendApiClient extends RestClient implements SpendClient {
     @Override
     public void removeCategory(CategoryJson category) {
         throw new UnsupportedOperationException("Can`t remove category using API");
+    }
+
+    @Step("Get all categories of a user '{username}'")
+    @Nonnull
+    public List<CategoryJson> getAllCategories(String username) {
+        final Response<List<CategoryJson>> response;
+
+        try {
+            response = spendApi.allCategories(username)
+                    .execute();
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }
+
+        assertEquals(200, response.code());
+
+        if (response.isSuccessful() && response.body() != null) {
+            return response.body();
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    @Step("Get all spends of a user '{username}'")
+    @Nonnull
+    public List<SpendJson> allSpends(String username) {
+        final Response<List<SpendJson>> response;
+
+        try {
+            response = spendApi.allSpends(
+                            username,
+                            null,
+                            null,
+                            null
+                    )
+                    .execute();
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }
+
+        assertEquals(200, response.code());
+
+        if (response.isSuccessful() && response.body() != null) {
+            return response.body();
+        } else {
+            return Collections.emptyList();
+        }
     }
 }

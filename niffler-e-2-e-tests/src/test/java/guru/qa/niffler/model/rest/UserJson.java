@@ -37,6 +37,15 @@ public record UserJson(
         @JsonIgnore
         TestData testData) {
 
+    // Конструктор только для username и password
+    public UserJson(String username, String password) {
+        this(null, username, null, null, null, null, null, null, null, new TestData(password));
+    }
+
+    public UserJson(String username, TestData testData) {
+        this(null, username, null, null, null, null, null, null, null, testData);
+    }
+
     public static @Nonnull UserJson fromEntity(@Nonnull UserEntity entity, @Nullable FriendshipStatus friendshipStatus) {
         return new UserJson(
                 entity.getId(),
@@ -57,4 +66,6 @@ public record UserJson(
                 id, username, firstname, surname, fullname, currency, photo, photoSmall, friendshipStatus, testData
         );
     }
+
+
 }

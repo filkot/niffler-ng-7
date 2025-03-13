@@ -1,24 +1,27 @@
 package guru.qa.niffler.test.web.fake;
 
-import guru.qa.niffler.service.impl.UsersApiClient;
+import guru.qa.niffler.jupiter.annotation.ApiLogin;
+import guru.qa.niffler.jupiter.annotation.Token;
+import guru.qa.niffler.jupiter.annotation.User;
+import guru.qa.niffler.model.rest.UserJson;
 import org.junit.jupiter.api.Test;
 
-import static guru.qa.niffler.utils.OauthUtils.generateCodeChallenge;
-import static guru.qa.niffler.utils.OauthUtils.generateCodeVerifier;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class OAuthTest {
 
-    private final UsersApiClient usersApiClient = new UsersApiClient();
+    @Test
+    @User(friends = 1)
+    @ApiLogin()
+    void oauthTest(@Token String token, UserJson user) {
+        System.out.println(user);
+        assertNotNull(token);
+    }
 
     @Test
-    void oauthTest() {
-        final String codeVerifier = generateCodeVerifier();
-        final String codeChallenge = generateCodeChallenge(codeVerifier);
-
-        usersApiClient.authorize(codeChallenge);
-        String code = usersApiClient.login("filkot", "12345");
-        String token = usersApiClient.token(code, codeVerifier);
+    @ApiLogin(username = "filkot", password = "12345")
+    void oauthTest2(@Token String token, UserJson user) {
+        System.out.println(user);
         assertNotNull(token);
     }
 }

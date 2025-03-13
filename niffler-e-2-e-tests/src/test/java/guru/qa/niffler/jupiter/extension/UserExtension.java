@@ -7,6 +7,8 @@ import guru.qa.niffler.utils.RandomDataUtils;
 import org.junit.jupiter.api.extension.*;
 import org.junit.platform.commons.support.AnnotationSupport;
 
+import javax.annotation.Nullable;
+
 public class UserExtension implements BeforeEachCallback,
         ParameterResolver {
 
@@ -26,10 +28,7 @@ public class UserExtension implements BeforeEachCallback,
                         usersClient.addOutcomeInvitation(user, userAnno.outcomeInvitations());
                         usersClient.addFriend(user, userAnno.friends());
 
-                        context.getStore(NAMESPACE).put(
-                                context.getUniqueId(),
-                                user
-                        );
+                        setUser(user);
                     }
                 });
     }
@@ -41,9 +40,24 @@ public class UserExtension implements BeforeEachCallback,
 
     @Override
     public UserJson resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return extensionContext.getStore(NAMESPACE).get(
-                extensionContext.getUniqueId(),
+        return getUserJson();
+    }
+
+    public static void setUser(UserJson user) {
+        final ExtensionContext context = TestMethodContextExtension.context();
+        context.getStore(NAMESPACE).put(
+                context.getUniqueId(),
+                user
+        );
+    }
+
+    @Nullable
+    public static UserJson getUserJson() {
+        final ExtensionContext context = TestMethodContextExtension.context();
+        return context.getStore(NAMESPACE).get(
+                context.getUniqueId(),
                 UserJson.class
         );
     }
+
 }
