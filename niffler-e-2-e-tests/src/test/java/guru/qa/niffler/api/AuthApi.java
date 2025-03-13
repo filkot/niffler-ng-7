@@ -5,6 +5,7 @@ import retrofit2.Call;
 import retrofit2.http.*;
 
 public interface AuthApi {
+
     @GET("oauth2/authorize")
     Call<Void> authorize(
             @Query("response_type") String responseType,
@@ -40,4 +41,6 @@ public interface AuthApi {
             @Field("password") String password,
             @Field("passwordSubmit") String passwordSubmit,
             @Field("_csrf") String csrf);
+
+
 }
