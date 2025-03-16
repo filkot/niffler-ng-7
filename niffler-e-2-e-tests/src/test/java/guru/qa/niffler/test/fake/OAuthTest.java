@@ -1,4 +1,4 @@
-package guru.qa.niffler.test.web.fake;
+package guru.qa.niffler.test.fake;
 
 import guru.qa.niffler.jupiter.annotation.ApiLogin;
 import guru.qa.niffler.jupiter.annotation.Token;
