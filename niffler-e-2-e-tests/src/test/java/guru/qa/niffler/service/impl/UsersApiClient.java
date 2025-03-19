@@ -29,13 +29,6 @@ public class UsersApiClient implements UsersClient {
     private static final Config CFG = Config.getInstance();
     private static final String defaultPassword = "12345";
 
-    private static final String RESPONSE_TYPE = "code";
-    private static final String CLIENT_ID = "client";
-    private static final String SCOPE = "openid";
-    private static final String REDIRECT_URI = CFG.frontUrl() + "authorized";
-    private static final String CODE_CHALLENGE_METHOD = "S256";
-    private static final String GRANT_TYPE = "authorization_code";
-
     private final AuthApi authApi = new EmtyRestClient(CFG.authUrl()).create(AuthApi.class);
     private final UserdataApi userdataApi = new EmtyRestClient(CFG.userdataUrl()).create(UserdataApi.class);
 

@@ -37,4 +37,25 @@ class UserControllerTest {
         .andExpect(jsonPath("$.photo").isNotEmpty())
         .andExpect(jsonPath("$.photoSmall").isNotEmpty());
   }
+
+
+  @Sql(scripts = "/allUsersShouldBeReturned.sql")
+  @Test
+  void allUsersShouldBeReturned() throws Exception {
+    mockMvc.perform(get("/internal/users/all")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .param("username", "user1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray()) // Проверяем, что ответ — массив
+            .andExpect(jsonPath("$[0].username").value("user2"))
+            .andExpect(jsonPath("$[0].fullname").value("Jane Smith"))
+            .andExpect(jsonPath("$[0].currency").value("RUB"))
+            .andExpect(jsonPath("$[1].username").value("user3"))
+            .andExpect(jsonPath("$[1].fullname").value("Ivan Ivanov"))
+            .andExpect(jsonPath("$[1].currency").value("RUB"))
+            .andExpect(jsonPath("$[3].username").value("user4"))
+            .andExpect(jsonPath("$[3].fullname").value("Emily Davis"))
+            .andExpect(jsonPath("$[3].currency").value("RUB"))
+    ;
+  }
 }
