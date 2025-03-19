@@ -1,28 +1,21 @@
 package guru.qa.niffler.test.web;
 
-import com.codeborne.selenide.SelenideDriver;
-import guru.qa.niffler.jupiter.extension.BrowserExtension;
+import com.codeborne.selenide.Selenide;
+import guru.qa.niffler.jupiter.annotation.meta.WebTest;
 import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.MainPage;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static guru.qa.niffler.jupiter.convector.Browser.chromeConfig;
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
 
+@WebTest
 public class RegistrationTest {
-
-    @RegisterExtension
-    private final BrowserExtension browserExtension = new BrowserExtension();
-    private final SelenideDriver chrome = new SelenideDriver(chromeConfig);
 
     @Test
     void shouldRegisterNewUser() {
-        browserExtension.addDriver(chrome);
         String newUsername = randomUsername();
         String password = "12345";
-        chrome.open(LoginPage.URL);
-        new LoginPage(chrome)
+        Selenide.open(LoginPage.URL, LoginPage.class)
                 .doRegister()
                 .fillRegisterPage(newUsername, password, password)
                 .successSubmit()
@@ -33,12 +26,10 @@ public class RegistrationTest {
 
     @Test
     void shouldNotRegisterUserWithExistingUsername() {
-        browserExtension.addDriver(chrome);
         String existingUsername = "duck";
         String password = "12345";
 
-        chrome.open(LoginPage.URL);
-        LoginPage loginPage = new LoginPage(chrome);
+        LoginPage loginPage = Selenide.open(LoginPage.URL, LoginPage.class);
         loginPage.doRegister()
                 .fillRegisterPage(existingUsername, password, password)
                 .errorSubmit();
@@ -47,12 +38,10 @@ public class RegistrationTest {
 
     @Test
     void shouldShowErrorIfPasswordAndConfirmPasswordAreNotEqual() {
-        browserExtension.addDriver(chrome);
         String newUsername = randomUsername();
         String password = "12345";
 
-        chrome.open(LoginPage.URL);
-        LoginPage loginPage = new LoginPage(chrome);
+        LoginPage loginPage = Selenide.open(LoginPage.URL, LoginPage.class);
         loginPage.doRegister()
                 .fillRegisterPage(newUsername, password, "bad password submit")
                 .errorSubmit();

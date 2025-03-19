@@ -7,6 +7,7 @@ buildscript {
         selenideVersion = '7.4.2'
         okhttp3Version = '4.11.0'
         retrofitVersion = '2.11.0'
+        scalarsVersion = '2.11.0'
         apollographqlVersion = '0.0.2'
         logbackVersion = '1.4.11'
         slf4jVersion = '2.0.9'
@@ -97,6 +98,7 @@ dependencies {
     testImplementation("com.squareup.retrofit2:retrofit:${retrofitVersion}") {
         exclude group: "com.squareup.okhttp3"
     }
+    testImplementation("com.squareup.retrofit2:converter-scalars:${scalarsVersion}")
     testImplementation("com.squareup.retrofit2:converter-jackson:${retrofitVersion}") {
         exclude group: "com.squareup.okhttp3"
     }

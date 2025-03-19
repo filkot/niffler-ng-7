@@ -11,6 +11,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -33,11 +34,15 @@ public abstract class RestClient {
         this(baseUrl, followRedirect, JacksonConverterFactory.create(), HttpLoggingInterceptor.Level.BODY);
     }
 
+    public RestClient(String baseUrl, boolean followRedirect, @Nullable Interceptor... interceptors) {
+        this(baseUrl, followRedirect, JacksonConverterFactory.create(), HttpLoggingInterceptor.Level.BODY, interceptors);
+    }
+
     public RestClient(String baseUrl, Converter.Factory factory) {
         this(baseUrl, false, factory, HttpLoggingInterceptor.Level.BODY);
     }
 
-    public RestClient(String baseUrl, boolean followRedirect, Converter.Factory factory, HttpLoggingInterceptor.Level level, Interceptor... interceptors) {
+    public RestClient(String baseUrl, boolean followRedirect, Converter.Factory factory, HttpLoggingInterceptor.Level level, @Nullable Interceptor... interceptors) {
         final OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .followRedirects(followRedirect);
 

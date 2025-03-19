@@ -15,6 +15,13 @@ public interface AuthApi {
             @Query("code_challenge") String codeChallenge,
             @Query("code_challenge_method") String codeChallengeMethod);
 
+    @POST("login")
+    @FormUrlEncoded
+    Call<Void> login(
+            @Field("username") String username,
+            @Field("password") String password,
+            @Field("_csrf") String csrf);
+
     @POST("oauth2/token")
     @FormUrlEncoded
     Call<JsonNode> token(
@@ -23,13 +30,6 @@ public interface AuthApi {
             @Field("grant_type") String grantType,
             @Field("code") String code,
             @Field("code_verifier") String codeChallenge);
-
-    @POST("login")
-    @FormUrlEncoded
-    Call<Void> login(
-            @Field("username") String username,
-            @Field("password") String password,
-            @Field("_csrf") String csrf);
 
     @GET("register")
     Call<Void> requestRegisterForm();
