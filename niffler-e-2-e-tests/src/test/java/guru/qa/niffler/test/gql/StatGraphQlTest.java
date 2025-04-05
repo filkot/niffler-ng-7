@@ -3,28 +3,27 @@ package guru.qa.niffler.test.gql;
 import com.apollographql.java.rx2.Rx2Apollo;
 import guru.qa.StatQuery;
 import guru.qa.UpdateCategoryMutation;
-import guru.qa.niffler.jupiter.annotation.*;
+import guru.qa.niffler.jupiter.annotation.ApiLogin;
+import guru.qa.niffler.jupiter.annotation.Spending;
+import guru.qa.niffler.jupiter.annotation.Token;
+import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.rest.CategoryJson;
 import guru.qa.niffler.model.rest.SpendJson;
 import guru.qa.niffler.model.rest.UserJson;
+import guru.qa.niffler.utils.SpendUtils;
 import guru.qa.type.CategoryInput;
 import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
+import static guru.qa.niffler.utils.SpendUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class StatGraphQlTest extends BaseGraphQlTest {
 
-    private static final Map<CurrencyValues, Double> CURRENCY_RATES = Map.of(
-            CurrencyValues.USD, 66.66667,
-            CurrencyValues.EUR, 72.0,
-            CurrencyValues.RUB, 1.0
-    );
 
     private StatQuery.Stat getStatistic(String bearerToken) {
         return Rx2Apollo.single(apolloClient.query(StatQuery.builder().build())
@@ -46,34 +45,6 @@ public class StatGraphQlTest extends BaseGraphQlTest {
                 .blockingGet()
                 .dataOrThrow()
                 .category;
-    }
-
-    private SpendJson convertToRubSpend(SpendJson spend) {
-        return new SpendJson(
-                null,
-                spend.spendDate(),
-                spend.category(),
-                CurrencyValues.RUB,
-                roundToTwoDecimals(spend.amount() * CURRENCY_RATES.get(spend.currency())),
-                "",
-                spend.username()
-        );
-    }
-
-    private SpendJson mapStatToSpend(StatQuery.StatByCategory stat, UserJson user) {
-        return new SpendJson(
-                null,
-                stat.firstSpendDate,
-                new CategoryJson(null, stat.categoryName, user.username(), false),
-                CurrencyValues.valueOf(stat.currency.rawValue),
-                roundToTwoDecimals(stat.sum),
-                "",
-                user.username()
-        );
-    }
-
-    private double roundToTwoDecimals(double value) {
-        return Math.round(value * 100.0) / 100.0;
     }
 
     @Test
@@ -102,7 +73,7 @@ public class StatGraphQlTest extends BaseGraphQlTest {
         StatQuery.Stat result = getStatistic(bearerToken);
 
         List<SpendJson> expectedSpends = user.testData().spends().stream()
-                .map(this::convertToRubSpend)
+                .map(SpendUtils::convertToRubWithNewRates)
                 .sorted(Comparator.comparing(spend -> spend.category().name()))
                 .toList();
 
@@ -116,11 +87,13 @@ public class StatGraphQlTest extends BaseGraphQlTest {
                 .ignoringFields("category.id", "spendDate")
                 .isEqualTo(expectedSpends);
 
-        double expectedTotal = user.testData().spends().stream()
-                .mapToDouble(spend -> spend.amount() * CURRENCY_RATES.get(spend.currency()))
-                .sum();
+        double expectedTotal =
+                roundToTwoDecimals(user.testData().spends().stream()
+                .mapToDouble(spend -> convertAmountToRub(spend.amount(), spend.currency()))
+                .sum());
 
-        assertEquals(expectedTotal, result.total, 0.001);
+        assertEquals(expectedTotal, result.total, 0.001,
+                "Total sum in RUB doesn't match expected value");
     }
 
     @Test
@@ -144,7 +117,7 @@ public class StatGraphQlTest extends BaseGraphQlTest {
         StatQuery.Stat result = getStatistic(bearerToken);
 
         List<SpendJson> expectedSpends = user.testData().spends().stream()
-                .map(this::convertToRubSpend)
+                .map(spend -> convertToRubWithNewRates(spend))
                 .sorted(Comparator.comparing(spend -> spend.category().name()))
                 .toList();
 
@@ -158,12 +131,15 @@ public class StatGraphQlTest extends BaseGraphQlTest {
                 .ignoringFields("category.id", "spendDate", "category.name")
                 .isEqualTo(expectedSpends);
 
-        assertEquals("Archived", actualSpends.getFirst().category().name());
+        assertEquals("Archived", actualSpends.getFirst().category().name(),
+                "Category should be archived");
 
         double expectedTotal = user.testData().spends().stream()
-                .mapToDouble(spend -> spend.amount() * CURRENCY_RATES.get(spend.currency()))
+                .mapToDouble(spend -> convertAmountToRub(spend.amount(), spend.currency()))
                 .sum();
 
-        assertEquals(expectedTotal, result.total, 0.01);
+        assertEquals(roundToTwoDecimals(expectedTotal), result.total, 0.01,
+                "Total sum in RUB doesn't match expected value");
     }
+
 }
