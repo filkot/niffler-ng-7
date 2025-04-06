@@ -12,15 +12,15 @@ option java_outer_classname = "NifflerUserdataProto";
 service NifflerUserdataService {
   rpc GetFriendsPageable(PageableRequest) returns (UserPageResponse);
   rpc SearchFriends(SearchFriendsRequest) returns (UserPageResponse);
-  rpc RemoveFriendship(FriendshipRequest) returns (google.protobuf.Empty);
+  rpc SendFriendshipInvite(FriendshipInviteRequest) returns (FriendshipResponse);
   rpc AcceptFriendship(FriendshipRequest) returns (FriendshipResponse);
   rpc DeclineFriendship(FriendshipRequest) returns (FriendshipResponse);
-  rpc SendFriendshipInvite(FriendshipInviteRequest) returns (FriendshipResponse);
+  rpc RemoveFriendship(FriendshipRequest) returns (google.protobuf.Empty);
 }
 
 message PageableRequest {
   string username = 1;
-  optional int32 page = 2 [json_name = "page"];
+  int32 page = 2;
   int32 size = 3;
 }
 
@@ -39,7 +39,6 @@ message FriendshipRequest {
 message FriendshipInviteRequest {
   string username = 1;
   string friend_username = 2;
-  string message = 3;
 }
 
 message UserPageResponse {
@@ -70,5 +69,4 @@ enum FriendshipStatus {
   PENDING = 1;
   ACCEPTED = 2;
   DECLINED = 3;
-  REMOVED = 4;
 }

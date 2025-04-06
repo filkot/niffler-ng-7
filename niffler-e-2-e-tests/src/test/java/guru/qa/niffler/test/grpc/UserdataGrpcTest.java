@@ -17,7 +17,7 @@ public class UserdataGrpcTest extends BaseGrpcTest {
     void getFriendsPageable_shouldReturnPaginatedFriends(UserJson user) {
         PageableRequest request = PageableRequest.newBuilder()
                 .setUsername(user.username())
-                .setPage(1)
+                .setPage(0)
                 .setSize(10)
                 .build();
 
@@ -38,46 +38,39 @@ public class UserdataGrpcTest extends BaseGrpcTest {
     void searchFriends_shouldFilterByQuery(UserJson user) {
         SearchFriendsRequest request = SearchFriendsRequest.newBuilder()
                 .setUsername(user.username())
-                .setSearchQuery("friend")
-                .setPage(1)
+                .setSearchQuery(".")
+                .setPage(0)
                 .setSize(10)
                 .build();
 
         UserPageResponse response = USERDATA_SERVICE_BLOCKING_STUB.searchFriends(request);
 
         assertTrue(response.getEdgesList().stream()
-                .allMatch(u -> u.getUsername().contains("friend")));
+                .allMatch(u -> u.getUsername().contains(".")));
     }
 
-    @User(friends = 1)
+
+    @User
     @ApiLogin
     @Test
-    void removeFriendship_shouldDeleteFriend(UserJson user) {
-        String friendUsername = user.testData().friends().get(0).username();
-        FriendshipRequest request = FriendshipRequest.newBuilder()
+    void sendFriendshipInvite_shouldCreateRequest(UserJson user) {
+        String friendUsername = "filkot";
+        FriendshipInviteRequest request = FriendshipInviteRequest.newBuilder()
                 .setUsername(user.username())
                 .setFriendUsername(friendUsername)
                 .build();
 
-        assertDoesNotThrow(() -> {
-            USERDATA_SERVICE_BLOCKING_STUB.removeFriendship(request);
-        });
+        FriendshipResponse response = USERDATA_SERVICE_BLOCKING_STUB.sendFriendshipInvite(request);
 
-        UserPageResponse response = USERDATA_SERVICE_BLOCKING_STUB.getFriendsPageable(
-                PageableRequest.newBuilder()
-                        .setUsername(user.username())
-                        .setPage(1)
-                        .setSize(10)
-                        .build()
-        );
-        assertEquals(0, response.getTotalElements());
+        assertEquals(FriendshipStatus.PENDING, response.getStatus());
+        assertEquals(friendUsername, response.getUser().getUsername());
     }
 
     @User(incomeInvitations = 1)
     @ApiLogin
     @Test
     void acceptFriendship_shouldChangeStatus(UserJson user) {
-        String friendUsername = user.testData().incomeInvitations().get(0).username();
+        String friendUsername = user.testData().incomeInvitations().getFirst().username();
         FriendshipRequest request = FriendshipRequest.newBuilder()
                 .setUsername(user.username())
                 .setFriendUsername(friendUsername)
@@ -105,21 +98,28 @@ public class UserdataGrpcTest extends BaseGrpcTest {
         assertEquals(friendUsername, response.getUser().getUsername());
     }
 
-    @User
+    @User(friends = 1)
     @ApiLogin
     @Test
-    void sendFriendshipInvite_shouldCreateRequest(UserJson user) {
-        String friendUsername = "new_friend";
-        FriendshipInviteRequest request = FriendshipInviteRequest.newBuilder()
+    void removeFriendship_shouldDeleteFriend(UserJson user) {
+        String friendUsername = user.testData().friends().get(0).username();
+        FriendshipRequest request = FriendshipRequest.newBuilder()
                 .setUsername(user.username())
                 .setFriendUsername(friendUsername)
-                .setMessage("Let's be friends!")
                 .build();
 
-        FriendshipResponse response = USERDATA_SERVICE_BLOCKING_STUB.sendFriendshipInvite(request);
+        assertDoesNotThrow(() -> {
+            USERDATA_SERVICE_BLOCKING_STUB.removeFriendship(request);
+        });
 
-        assertEquals(FriendshipStatus.PENDING, response.getStatus());
-        assertEquals(friendUsername, response.getUser().getUsername());
+        UserPageResponse response = USERDATA_SERVICE_BLOCKING_STUB.getFriendsPageable(
+                PageableRequest.newBuilder()
+                        .setUsername(user.username())
+                        .setPage(0)
+                        .setSize(10)
+                        .build()
+        );
+        assertEquals(0, response.getTotalElements());
     }
 
     @Test
@@ -127,7 +127,7 @@ public class UserdataGrpcTest extends BaseGrpcTest {
     void getFriendsPageable_shouldFailForNonExistingUser() {
         PageableRequest request = PageableRequest.newBuilder()
                 .setUsername("non_existing_user")
-                .setPage(1)
+                .setPage(0)
                 .setSize(10)
                 .build();
 
