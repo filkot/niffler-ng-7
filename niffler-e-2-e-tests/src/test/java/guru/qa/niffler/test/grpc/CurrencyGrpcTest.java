@@ -8,8 +8,12 @@ import guru.qa.niffler.grpc.CurrencyResponse;
 import guru.qa.niffler.model.CurrencyValues;
 import io.grpc.StatusRuntimeException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static guru.qa.niffler.grpc.CurrencyValues.*;
 import static guru.qa.niffler.utils.SpendUtils.EXPECTED_CURRENCY_RATES;
@@ -19,78 +23,59 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CurrencyGrpcTest extends BaseGrpcTest {
 
-
     @Test
     void allCurrenciesShouldReturned() {
-        final CurrencyResponse response = blockingStub.getAllCurrencies(Empty.getDefaultInstance());
-
+        final CurrencyResponse response = CURRENCY_SERVICE_BLOCKING_STUB.getAllCurrencies(Empty.getDefaultInstance());
         final List<Currency> allCurrenciesList = response.getAllCurrenciesList();
 
         assertEquals(EXPECTED_CURRENCY_RATES.size(), allCurrenciesList.size());
 
-        for (Currency currency : allCurrenciesList) {
-            final CurrencyValues currencyValues = CurrencyValues.valueOf(currency.getCurrency().name());
-            assertEquals(EXPECTED_CURRENCY_RATES.get(currencyValues), currency.getCurrencyRate());
-        }
+        allCurrenciesList.forEach(currency -> {
+            CurrencyValues currencyValue = CurrencyValues.valueOf(currency.getCurrency().name());
+            assertEquals(EXPECTED_CURRENCY_RATES.get(currencyValue), currency.getCurrencyRate());
+        });
     }
 
-    @Test
-    void checkCalculateRates_USD_to_RUB() {
-        double spendAmount = 100.0;
-        CalculateRequest request = CalculateRequest.newBuilder()
-                .setSpendCurrency(USD)
-                .setDesiredCurrency(RUB)
-                .setAmount(spendAmount)
-                .build();
-
-        CalculateResponse response = blockingStub.calculateRate(request);
-        double expected = spendAmount * (EXPECTED_CURRENCY_RATES.get(CurrencyValues.USD) / EXPECTED_CURRENCY_RATES.get(CurrencyValues.RUB));
-
-        assertEquals(roundToTwoDecimals(expected), response.getCalculatedAmount(), 0.001,
-                "USD to RUB conversion failed");
+    private static Stream<Arguments> currencyConversionProvider() {
+        return Stream.of(
+                Arguments.of(100.0, USD, RUB,
+                        roundToTwoDecimals(
+                                100.0 * (EXPECTED_CURRENCY_RATES.get(CurrencyValues.USD) /
+                                        EXPECTED_CURRENCY_RATES.get(CurrencyValues.RUB)))),
+                Arguments.of(50.0, EUR, KZT,
+                        roundToTwoDecimals(
+                                50.0 * (EXPECTED_CURRENCY_RATES.get(CurrencyValues.EUR) /
+                                        EXPECTED_CURRENCY_RATES.get(CurrencyValues.KZT)))),
+                Arguments.of(75.0, USD, USD, 75.0)
+        );
     }
 
-    @Test
-    void checkCalculateRates_EUR_to_KZT() {
-        double spendAmount = 50.0;
+    @ParameterizedTest
+    @MethodSource("currencyConversionProvider")
+    void checkCalculateRates(double amount,
+                             guru.qa.niffler.grpc.CurrencyValues spendCurrency,
+                             guru.qa.niffler.grpc.CurrencyValues desiredCurrency,
+                             double expectedAmount) {
         CalculateRequest request = CalculateRequest.newBuilder()
-                .setSpendCurrency(EUR)
-                .setDesiredCurrency(KZT)
-                .setAmount(spendAmount)
+                .setSpendCurrency(spendCurrency)
+                .setDesiredCurrency(desiredCurrency)
+                .setAmount(amount)
                 .build();
 
-        CalculateResponse response = blockingStub.calculateRate(request);
-        double expected = spendAmount * (EXPECTED_CURRENCY_RATES.get(CurrencyValues.EUR) / EXPECTED_CURRENCY_RATES.get(CurrencyValues.KZT));
-
-        assertEquals(roundToTwoDecimals(expected), response.getCalculatedAmount(), 0.001,
-                "EUR to KZT conversion failed");
-    }
-
-    @Test
-    void checkCalculateRates_sameCurrency() {
-        double spendAmount = 75.0;
-        CalculateRequest request = CalculateRequest.newBuilder()
-                .setSpendCurrency(USD)
-                .setDesiredCurrency(USD)
-                .setAmount(spendAmount)
-                .build();
-
-        CalculateResponse response = blockingStub.calculateRate(request);
-
-        assertEquals(spendAmount, response.getCalculatedAmount(), 0.001,
-                "Same currency conversion should return original amount");
+        CalculateResponse response = CURRENCY_SERVICE_BLOCKING_STUB.calculateRate(request);
+        assertEquals(expectedAmount, response.getCalculatedAmount(), 0.001);
     }
 
     @Test
     void checkCalculateRates_invalidCurrency() {
         CalculateRequest request = CalculateRequest.newBuilder()
-                .setSpendCurrency(guru.qa.niffler.grpc.CurrencyValues.UNSPECIFIED)
+                .setSpendCurrency(UNSPECIFIED)
                 .setDesiredCurrency(USD)
                 .setAmount(100.0)
                 .build();
 
-        assertThrows(StatusRuntimeException.class, () -> {
-            blockingStub.calculateRate(request);
-        }, "Should throw exception for unrecognized currency");
+        assertThrows(StatusRuntimeException.class, () ->
+                CURRENCY_SERVICE_BLOCKING_STUB.calculateRate(request)
+        );
     }
 }
