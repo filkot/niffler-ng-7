@@ -5,10 +5,7 @@ import guru.qa.niffler.api.core.RestClient;
 import guru.qa.niffler.model.rest.FriendJson;
 import guru.qa.niffler.model.rest.UserJson;
 import io.qameta.allure.Step;
-import retrofit2.Call;
 import retrofit2.Response;
-import retrofit2.http.GET;
-import retrofit2.http.Header;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
