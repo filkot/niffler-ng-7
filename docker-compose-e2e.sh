@@ -11,10 +11,15 @@ export ARCH=$(uname -m)
 echo '### Java version ###'
 java --version
 
+# Устанавливаем значения по умолчанию
+export FRONT="niffler-ng-client"
+export BROWSER="chrome"
+
+# Обрабатываем аргументы
 if [[ "$1" = "gql" ]]; then
   export FRONT="niffler-ng-gql-client"
-else
-  export FRONT="niffler-ng-client"
+elif [[ "$1" = "firefox" ]]; then
+  export BROWSER="firefox"
 fi
 
 docker compose down
@@ -28,14 +33,51 @@ if [ ! -z "$docker_containers" ]; then
   docker rm $docker_containers
 fi
 
-if [ ! -z "$docker_images" ]; then
-  echo "### Remove images: $docker_images ###"
-  docker rmi $docker_images
-fi
+#if [ ! -z "$docker_images" ]; then
+#  echo "### Remove images: $docker_images ###"
+#  docker rmi $docker_images
+#fi
+#
+#bash ./gradlew clean
+#bash ./gradlew jibDockerBuild -x :niffler-e-2-e-tests:test
+#
+#if [[ "$BROWSER" = "chrome" ]]; then
+#  docker pull selenoid/vnc_chrome:127.0
+#else
+#  docker pull selenoid/firefox:latest
+#fi
+#
+#docker compose up -d
+#docker ps -a
 
-bash ./gradlew clean
-bash ./gradlew jibDockerBuild -x :niffler-e-2-e-tests:test
+# Проверяем наличие локальных образов
+echo "### Checking for local Docker images... ###"
+declare -A images_to_check=(
+  ["niffler-frontend"]="${PREFIX}/${FRONT}-docker:${FRONT_VERSION}"
+  ["niffler-auth"]="${PREFIX}/niffler-auth-docker:latest"
+  ["niffler-currency"]="${PREFIX}/niffler-currency-docker:latest"
+  ["niffler-spend"]="${PREFIX}/niffler-spend-docker:latest"
+  ["niffler-userdata"]="${PREFIX}/niffler-userdata-docker:latest"
+  ["niffler-gateway"]="${PREFIX}/niffler-gateway-docker:latest"
+  ["selenoid/chrome"]="selenoid/vnc_chrome:127.0"
+  ["selenoid/firefox"]="selenoid/firefox:latest"
+)
 
-docker pull selenoid/vnc_chrome:127.0
+for image_name in "${!images_to_check[@]}"; do
+  image="${images_to_check[$image_name]}"
+  if [[ "$(docker images -q $image)" == "" ]]; then
+    echo "### Image '$image' not found locally, building it... ###"
+    if [[ "$image_name" == "selenoid/chrome" || "$image_name" == "selenoid/firefox" ]]; then
+      docker pull "$image"
+    else
+      bash ./gradlew jibDockerBuild -x :niffler-e-2-e-tests:test
+    fi
+  else
+    echo "### Image '$image' found locally, using it... ###"
+  fi
+done
+
+# Запускаем контейнеры
+echo "### Starting containers... ###"
 docker compose up -d
 docker ps -a

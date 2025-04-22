@@ -21,7 +21,7 @@ allprojects {
 
 subprojects {
     ext {
-        dockerHubName = "qaguru"
+        dockerHubName = "filkot"
 
         lombokVersion = '1.18.34'
         springKafkaVersion = '3.2.2'
@@ -45,5 +45,10 @@ subprojects {
         dockerArch = System.getProperty("os.arch") == "aarch64" || System.getProperty("os.arch") == "arm64"
                 ? "arm64"
                 : "amd64"
+    }
+
+    dependencies {
+        implementation 'net.java.dev.jna:jna:5.13.0'
+        implementation 'net.java.dev.jna:jna-platform:5.13.0'
     }
 }
