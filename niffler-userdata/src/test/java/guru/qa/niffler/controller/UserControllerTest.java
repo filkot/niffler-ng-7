@@ -53,9 +53,9 @@ class UserControllerTest {
             .andExpect(jsonPath("$[1].username").value("user3"))
             .andExpect(jsonPath("$[1].fullname").value("Ivan Ivanov"))
             .andExpect(jsonPath("$[1].currency").value("RUB"))
-            .andExpect(jsonPath("$[3].username").value("user4"))
-            .andExpect(jsonPath("$[3].fullname").value("Emily Davis"))
-            .andExpect(jsonPath("$[3].currency").value("RUB"))
+            .andExpect(jsonPath("$[2].username").value("user4"))
+            .andExpect(jsonPath("$[2].fullname").value("Emily Davis"))
+            .andExpect(jsonPath("$[2].currency").value("RUB"))
     ;
   }
 }
